@@ -12,6 +12,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "d
 var arrowKeys = 'right,up,left,down'.split(',');
 var specialKeys = 'alt,ctrl,shift,meta'.split(',');
 var shortcutMap = new Map();
+var globalOptions = {};
 var keyboardCode = {
   37: 'ArrowRight',
   38: 'ArrowUp',
@@ -61,7 +62,11 @@ function matchFunc(key, evnt) {
 }
 
 function handleShortcutKeyEvent(params, evnt) {
-  if (['input', 'textarea'].indexOf(evnt.target.tagName.toLowerCase()) === -1) {
+  var $table = params.$table;
+  var _$table$mouseConfig = $table.mouseConfig,
+      mouseConfig = _$table$mouseConfig === void 0 ? {} : _$table$mouseConfig;
+
+  if (mouseConfig.selected !== true && ['input', 'textarea'].indexOf(evnt.target.tagName.toLowerCase()) === -1) {
     var key = getEventKey(evnt.key) || keyboardCode[evnt.keyCode];
     var func = matchFunc(key.toLowerCase(), evnt);
 
@@ -72,33 +77,38 @@ function handleShortcutKeyEvent(params, evnt) {
   }
 }
 
-var VXETablePluginShortcutKey = {
-  install: function install(VXETable, options) {
-    _xeUtils["default"].each(options, function (key, funcName) {
-      var specialKey;
-      var realKey;
-      key.split('+').forEach(function (key) {
-        key = key.toLowerCase();
+function handleKeyMap() {
+  _xeUtils["default"].each(globalOptions.setting, function (key, funcName) {
+    var specialKey;
+    var realKey;
+    key.split('+').forEach(function (key) {
+      key = key.toLowerCase();
 
-        if (specialKeys.indexOf(key) > -1) {
-          specialKey = key;
-        } else {
-          realKey = key;
-        }
-      });
-
-      if (!realKey) {
-        throw new Error("[vxe-table-plugin-shortcut-key] Invalid shortcut key configuration '".concat(key, "'."));
+      if (specialKeys.indexOf(key) > -1) {
+        specialKey = key;
+      } else {
+        realKey = key;
       }
-
-      shortcutMap.set(realKey, {
-        realKey: realKey,
-        specialKey: specialKey,
-        funcName: funcName
-      });
     });
 
+    if (!realKey) {
+      throw new Error("[vxe-table-plugin-shortcut-key] Invalid shortcut key configuration '".concat(key, "'."));
+    }
+
+    shortcutMap.set(realKey, {
+      realKey: realKey,
+      specialKey: specialKey,
+      funcName: funcName
+    });
+  });
+}
+
+var VXETablePluginShortcutKey = {
+  install: function install(VXETable, options) {
+    _xeUtils["default"].assign(globalOptions, options);
+
     VXETable.interceptor.add('event.keydown', handleShortcutKeyEvent);
+    handleKeyMap();
   }
 };
 exports.VXETablePluginShortcutKey = VXETablePluginShortcutKey;

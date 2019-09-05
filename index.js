@@ -4,6 +4,8 @@ const arrowKeys = 'right,up,left,down'.split(',')
 const specialKeys = 'alt,ctrl,shift,meta'.split(',')
 const shortcutMap = new Map()
 
+const globalOptions = {}
+
 const keyboardCode = {
   37: 'ArrowRight',
   38: 'ArrowUp',
@@ -49,7 +51,9 @@ function matchFunc (key, evnt) {
 }
 
 function handleShortcutKeyEvent (params, evnt) {
-  if (['input', 'textarea'].indexOf(evnt.target.tagName.toLowerCase()) === -1) {
+  const { $table } = params
+  const { mouseConfig = {} } = $table
+  if (mouseConfig.selected !== true && ['input', 'textarea'].indexOf(evnt.target.tagName.toLowerCase()) === -1) {
     let key = getEventKey(evnt.key) || keyboardCode[evnt.keyCode]
     let func = matchFunc(key.toLowerCase(), evnt)
     if (func) {
@@ -59,29 +63,34 @@ function handleShortcutKeyEvent (params, evnt) {
   }
 }
 
+function handleKeyMap () {
+  XEUtils.each(globalOptions.setting, (key, funcName) => {
+    let specialKey
+    let realKey
+    key.split('+').forEach(key => {
+      key = key.toLowerCase()
+      if (specialKeys.indexOf(key) > -1) {
+        specialKey = key
+      } else {
+        realKey = key
+      }
+    })
+    if (!realKey) {
+      throw new Error(`[vxe-table-plugin-shortcut-key] Invalid shortcut key configuration '${key}'.`)
+    }
+    shortcutMap.set(realKey, {
+      realKey,
+      specialKey,
+      funcName
+    })
+  })
+}
+
 export const VXETablePluginShortcutKey = {
   install (VXETable, options) {
-    XEUtils.each(options, (key, funcName) => {
-      let specialKey
-      let realKey
-      key.split('+').forEach(key => {
-        key = key.toLowerCase()
-        if (specialKeys.indexOf(key) > -1) {
-          specialKey = key
-        } else {
-          realKey = key
-        }
-      })
-      if (!realKey) {
-        throw new Error(`[vxe-table-plugin-shortcut-key] Invalid shortcut key configuration '${key}'.`)
-      }
-      shortcutMap.set(realKey, {
-        realKey,
-        specialKey,
-        funcName
-      })
-    })
+    XEUtils.assign(globalOptions, options)
     VXETable.interceptor.add('event.keydown', handleShortcutKeyEvent)
+    handleKeyMap()
   }
 }
 

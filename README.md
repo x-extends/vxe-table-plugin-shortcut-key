@@ -21,9 +21,11 @@ import VXETablePluginShortcutKey from 'vxe-table-plugin-shortcut-key'
 
 Vue.use(VXETable)
 VXETable.use(VXETablePluginShortcutKey, {
-  // 'pager.prevPage': 'Shift+W', 支持普通的功能键或者组合键
-  'pager.prevPage': 'ArrowLeft',
-  'pager.nextPage': 'ArrowRight'
+  setting: {
+    // 'pager.prevPage': 'Shift+W', 支持普通的功能键或者组合键
+    'pager.prevPage': 'ArrowLeft',
+    'pager.nextPage': 'ArrowRight'
+  }
 })
 ```
 
