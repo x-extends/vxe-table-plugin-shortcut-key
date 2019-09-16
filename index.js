@@ -88,7 +88,13 @@ function handleKeyMap () {
 
 export const VXETablePluginShortcutKey = {
   install (VXETable, options) {
-    XEUtils.assign(globalOptions, options)
+    XEUtils.each(options, (key, funcName) => {
+      if (handleFuncs[funcName]) {
+        globalOptions[funcName] = key
+      } else {
+        console.warn(`[vxe-table-plugin-shortcut-key] The ${funcName} doesn't exist.`)
+      }
+    })
     VXETable.interceptor.add('event.keydown', handleShortcutKeyEvent)
     handleKeyMap()
   }

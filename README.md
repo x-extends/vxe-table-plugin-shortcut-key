@@ -22,7 +22,7 @@ import VXETablePluginShortcutKey from 'vxe-table-plugin-shortcut-key'
 Vue.use(VXETable)
 VXETable.use(VXETablePluginShortcutKey, {
   setting: {
-    // 'pager.prevPage': 'Shift+W', 支持普通的功能键或者组合键
+    // 'pager.prevPage': 'Ctrl+W', 支持普通键或者组合键
     'pager.prevPage': 'ArrowLeft',
     'pager.nextPage': 'ArrowRight'
   }
@@ -33,10 +33,14 @@ VXETable.use(VXETablePluginShortcutKey, {
 
 ### Shortcut key
 
-| code 功能编码 | describe 描述 |
-|------|------|
-| pager.prevPage | 如果存在分页，则进入上一页 |
-| pager.nextPage  | 如果存在分页，则进入下一页 |
+| code 功能编码 | describe 描述 | 默认值 |
+|------|------|------|
+| table.edit.actived | 只对 edit-config 启用后有效，则按该键进入编辑 | F2 |
+| table.edit.closed | 只对 edit-config 启用后有效，则按该键退出编辑 | Esc |
+| pager.prevPage | 只对 pager-config 启用后有效，则进入上一页 |  |
+| pager.nextPage  | 只对 pager-config 启用后有效，则进入下一页 |  |
+| pager.prevJump  | 只对 pager-config 启用后有效，则向上翻页 |  |
+| pager.nextJump  | 只对 pager-config 启用后有效，则向下翻页 |  |
 
 ## License
 
