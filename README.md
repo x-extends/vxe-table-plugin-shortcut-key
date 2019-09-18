@@ -22,8 +22,10 @@ import VXETablePluginShortcutKey from 'vxe-table-plugin-shortcut-key'
 Vue.use(VXETable)
 VXETable.use(VXETablePluginShortcutKey, {
   setting: {
-    'pager.prevPage': 'ArrowLeft', // 单个按键
-    'pager.prevJump': 'Ctrl + ArrowLeft' // 组合键
+    'pager.prevPage': 'ArrowLeft',
+    'pager.nextPage': 'ArrowRight', // 单个按键
+    'pager.prevJump': 'Ctrl + A',
+    'pager.nextJump': 'Ctrl + D' // 组合键
   }
 })
 ```
