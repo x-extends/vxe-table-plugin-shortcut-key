@@ -1,6 +1,6 @@
 {
   "name": "vxe-table-plugin-shortcut-key",
-  "version": "1.0.0-beta.2",
+  "version": "1.0.0",
   "description": "基于 vxe-table 表格的增强插件，为键盘操作提供快捷键的设置",
   "scripts": {
     "lib": "gulp build"
@@ -41,7 +41,7 @@
     "xe-utils": "^2.2.4"
   },
   "peerDependencies": {
-    "vxe-table": ">=1.14.13",
+    "vxe-table": ">=1.14.16",
     "xe-utils": ">=2.2.0"
   },
   "repository": {
