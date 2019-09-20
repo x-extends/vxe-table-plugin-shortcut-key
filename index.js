@@ -177,7 +177,7 @@ function parseDisabledKey (options) {
     if (!XEUtils.isFunction(opts.callback)) {
       console.warn(`[vxe-table-plugin-shortcut-key] The '${opts.keyMap}' must be a function.`)
     }
-    setKeyQueue(disabledMaps, getOpts(conf))
+    setKeyQueue(disabledMaps, opts)
   })
 }
 

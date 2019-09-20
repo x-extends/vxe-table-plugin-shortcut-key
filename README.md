@@ -31,8 +31,8 @@ VXETable.use(VXETablePluginShortcutKey, {
   setting: {
     'pager.prevPage': 'ArrowLeft',
     'pager.nextPage': 'ArrowRight', // 单个按键
-    'pager.prevJump': 'Ctrl + A',
-    'pager.nextJump': 'Ctrl + D' // 组合键
+    'pager.prevJump': 'Ctrl + W',
+    'pager.nextJump': 'Ctrl + S' // 组合键
   }
 })
 ```
@@ -45,11 +45,11 @@ disabled: Array\<string\>
 
 ### listener 快捷键监听
 
-disabled: object\<string, Function\>  
+listener: object\<string, Function(params, event)\>  
 
 ### setting 功能键设置
 
-disabled: object\<string, string\>  
+setting: object\<string, string\>  
 
 | code 功能编码 | describe 描述 | default 参考键值 |
 |------|------|------|

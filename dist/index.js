@@ -262,7 +262,7 @@
         console.warn("[vxe-table-plugin-shortcut-key] The '".concat(opts.keyMap, "' must be a function."));
       }
 
-      setKeyQueue(disabledMaps, getOpts(conf));
+      setKeyQueue(disabledMaps, opts);
     });
   }
 
