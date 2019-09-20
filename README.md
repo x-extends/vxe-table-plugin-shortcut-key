@@ -21,6 +21,13 @@ import VXETablePluginShortcutKey from 'vxe-table-plugin-shortcut-key'
 
 Vue.use(VXETable)
 VXETable.use(VXETablePluginShortcutKey, {
+  // 快捷键监听
+  listener: {
+    'Ctrl + V' (params, evnt) {
+      console.log('粘贴')
+    }
+  },
+  // 功能键设置
   setting: {
     'pager.prevPage': 'ArrowLeft',
     'pager.nextPage': 'ArrowRight', // 单个按键
@@ -32,12 +39,28 @@ VXETable.use(VXETablePluginShortcutKey, {
 
 ## API
 
-### Shortcut key
+### disabled 禁用快捷键
+
+disabled: Array\<string\>  
+
+### listener 快捷键监听
+
+disabled: object\<string, Function\>  
+
+### setting 功能键设置
+
+disabled: object\<string, string\>  
 
 | code 功能编码 | describe 描述 | default 参考键值 |
 |------|------|------|
-| table.edit.actived | 只对 edit-config 启用后有效，则按该键进入编辑 | F2 |
-| table.edit.closed | 只对 edit-config 启用后有效，则按该键退出编辑 | Esc |
+| table.edit.actived | 只对 edit-config 启用后有效，当单元格处于选中状态时，则进入编辑 | F2 |
+| table.edit.closed | 只对 edit-config 启用后有效，当单元格处于激活状态时，则退出编辑 | Esc |
+| table.edit.leftTabMove | 只对 edit-config / mouse-config 启用后有效，当单元格处于激活状态或者选中状态，则移动到左侧单元格 | Shift + Tab |
+| table.edit.rightTabMove | 只对 edit-config / mouse-config 启用后有效，当单元格处于激活状态或者选中状态，则移动到右侧单元格 | Tab |
+| table.cell.upMove | 只对 mouse-config 启用后有效，当单元格处于选中状态，则移动到上面的单元格 | ArrowUp |
+| table.cell.downMove | 只对 mouse-config 启用后有效，当单元格处于选中状态，则移动到下面的单元格 | ArrowDown |
+| table.cell.leftMove | 只对 mouse-config 启用后有效，当单元格处于选中状态，则移动到左边的单元格 | ArrowLeft |
+| table.cell.rightMove | 只对 mouse-config 启用后有效，当单元格处于选中状态，则移动到右边的单元格 | ArrowRight |
 | pager.prevPage | 只对 pager-config 启用后有效，则进入上一页 |  |
 | pager.nextPage | 只对 pager-config 启用后有效，则进入下一页 |  |
 | pager.prevJump | 只对 pager-config 启用后有效，则向上翻页 |  |

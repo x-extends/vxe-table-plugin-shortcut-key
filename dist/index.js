@@ -29,8 +29,9 @@
 
   var arrowKeys = 'right,up,left,down'.split(',');
   var specialKeys = 'alt,ctrl,shift,meta'.split(',');
-  var shortcutMap = {};
-  var globalOptions = {};
+  var settingMaps = {};
+  var listenerMaps = {};
+  var disabledMaps = {};
   var keyboardCode = {
     37: 'ArrowRight',
     38: 'ArrowUp',
@@ -41,12 +42,13 @@
   var SKey =
   /*#__PURE__*/
   function () {
-    function SKey(realKey, specialKey, funcName) {
+    function SKey(realKey, specialKey, funcName, options) {
       _classCallCheck(this, SKey);
 
       this.realKey = realKey;
       this.specialKey = specialKey;
       this.funcName = funcName;
+      this.options = options;
     }
 
     _createClass(SKey, [{
@@ -54,6 +56,13 @@
       value: function trigger(params, evnt) {
         if (!this.specialKey || evnt["".concat(this.specialKey, "Key")]) {
           return handleFuncs[this.funcName](params, evnt);
+        }
+      }
+    }, {
+      key: "emit",
+      value: function emit(params, evnt) {
+        if (!this.specialKey || evnt["".concat(this.specialKey, "Key")]) {
+          return this.options.callback(params, evnt);
         }
       }
     }]);
@@ -92,17 +101,44 @@
     };
   }
 
+  function handleTabMove(isLeft) {
+    return function (params, evnt) {
+      var $table = params.$table;
+      var actived = $table.getActiveRow();
+      var selected = $table.getMouseSelecteds();
+
+      if (selected) {
+        $table.moveTabSelected(selected, isLeft, evnt);
+      } else if (actived) {
+        $table.moveTabSelected(actived, isLeft, evnt);
+      }
+
+      return false;
+    };
+  }
+
+  function handleArrowMove(arrowIndex) {
+    return function (params, evnt) {
+      var $table = params.$table;
+      var selected = $table.getMouseSelecteds();
+      var arrows = [0, 0, 0, 0];
+      arrows[arrowIndex] = 1;
+
+      if (selected) {
+        $table.moveSelected(selected, arrows[0], arrows[1], arrows[2], arrows[3], evnt);
+        return false;
+      }
+    };
+  }
+
   var handleFuncs = {
     'table.edit.actived': function tableEditActived(params, evnt) {
       var $table = params.$table;
+      var selected = $table.getMouseSelecteds();
 
-      var _$table$getMouseSelec = $table.getMouseSelecteds(),
-          row = _$table$getMouseSelec.row,
-          column = _$table$getMouseSelec.column;
-
-      if (row && column) {
+      if (selected) {
         evnt.preventDefault();
-        $table.setActiveCell(row, column.property);
+        $table.setActiveCell(selected.row, selected.column.property);
         return false;
       }
     },
@@ -125,74 +161,141 @@
         return false;
       }
     },
+    'table.edit.rightTabMove': handleTabMove(0),
+    'table.edit.leftTabMove': handleTabMove(1),
+    'table.cell.leftMove': handleArrowMove(0),
+    'table.cell.upMove': handleArrowMove(1),
+    'table.cell.rightMove': handleArrowMove(2),
+    'table.cell.downMove': handleArrowMove(3),
     'pager.prevPage': handleChangePage('prevPage'),
     'pager.nextPage': handleChangePage('nextPage'),
     'pager.prevJump': handleChangePage('prevJump'),
     'pager.nextJump': handleChangePage('nextJump')
   };
 
-  function handleShortcutKeyEvent(params, evnt) {
-    var key = getEventKey(evnt.key) || keyboardCode[evnt.keyCode];
-    var skeyList = shortcutMap[key.toLowerCase()];
+  function runEvent(key, maps, prop, params, evnt) {
+    var skeyList = maps[key.toLowerCase()];
 
     if (skeyList) {
-      if (skeyList.map(function (skey) {
-        return skey.trigger(params, evnt);
-      }).some(function (rest) {
-        return rest === false;
-      })) {
-        return false;
-      }
+      return skeyList.some(function (skey) {
+        return skey[prop](params, evnt) === false;
+      });
     }
   }
 
-  function handleKeyMap() {
-    _xeUtils["default"].each(globalOptions, function (key, funcName) {
-      var specialKey;
-      var realKey;
-      key.split('+').forEach(function (key) {
-        key = key.toLowerCase().trim();
+  function handleShortcutKeyEvent(params, evnt) {
+    var key = getEventKey(evnt.key) || keyboardCode[evnt.keyCode];
 
-        if (specialKeys.indexOf(key) > -1) {
-          specialKey = key;
-        } else {
-          realKey = key;
-        }
-      });
+    if (!runEvent(key, disabledMaps, 'emit', params, evnt)) {
+      runEvent(key, settingMaps, 'trigger', params, evnt);
+      runEvent(key, listenerMaps, 'emit', params, evnt);
+    }
+  }
 
-      if (!realKey) {
-        throw new Error("[vxe-table-plugin-shortcut-key] Invalid shortcut key configuration '".concat(key, "'."));
+  function parseKeys(keyMap) {
+    var specialKey;
+    var realKey;
+    var keys = keyMap.split('+');
+    keys.forEach(function (key) {
+      key = key.toLowerCase().trim();
+
+      if (specialKeys.indexOf(key) > -1) {
+        specialKey = key;
+      } else {
+        realKey = key;
+      }
+    });
+
+    if (!realKey || keys.length > 2 || keys.length === 2 && !specialKey) {
+      throw new Error("[vxe-table-plugin-shortcut-key] Invalid shortcut key configuration '".concat(keyMap, "'."));
+    }
+
+    return {
+      specialKey: specialKey,
+      realKey: realKey
+    };
+  }
+
+  function setKeyQueue(maps, opts, funcName) {
+    var _parseKeys = parseKeys(opts.keyMap),
+        specialKey = _parseKeys.specialKey,
+        realKey = _parseKeys.realKey;
+
+    var skeyList = maps[realKey];
+
+    if (!skeyList) {
+      skeyList = maps[realKey] = [];
+    }
+
+    if (skeyList.some(function (skey) {
+      return skey.realKey === realKey && skey.specialKey === specialKey;
+    })) {
+      throw new Error("[vxe-table-plugin-shortcut-key] Shortcut key conflict '".concat(opts.keyMap, "'."));
+    }
+
+    skeyList.push(new SKey(realKey, specialKey, funcName, opts));
+  }
+
+  function getOpts(conf) {
+    return _xeUtils["default"].isString(conf) ? {
+      keyMap: conf
+    } : _xeUtils["default"].assign({
+      keyMap: conf.key
+    }, conf);
+  }
+
+  function parseDisabledKey(options) {
+    _xeUtils["default"].each(options.disabled, function (conf) {
+      var callback = function callback() {
+        return false;
+      };
+
+      var opts = _xeUtils["default"].isString(conf) ? {
+        keyMap: conf,
+        callback: callback
+      } : _xeUtils["default"].assign({
+        keyMap: conf.key,
+        callback: callback
+      }, conf);
+
+      if (!_xeUtils["default"].isFunction(opts.callback)) {
+        console.warn("[vxe-table-plugin-shortcut-key] The '".concat(opts.keyMap, "' must be a function."));
       }
 
-      var skeyList = shortcutMap[realKey];
+      setKeyQueue(disabledMaps, getOpts(conf));
+    });
+  }
 
-      if (!skeyList) {
-        skeyList = shortcutMap[realKey] = [];
+  function parseSettingKey(options) {
+    _xeUtils["default"].each(options.setting, function (conf, funcName) {
+      if (!handleFuncs[funcName]) {
+        console.warn("[vxe-table-plugin-shortcut-key] The '".concat(funcName, "' not exist."));
       }
 
-      if (skeyList.some(function (skey) {
-        return skey.realKey === realKey && skey.specialKey === specialKey;
-      })) {
-        throw new Error("[vxe-table-plugin-shortcut-key] Shortcut keys conflict '".concat(key, "'."));
+      setKeyQueue(settingMaps, getOpts(conf), funcName);
+    });
+  }
+
+  function parseListenerKey(options) {
+    _xeUtils["default"].each(options.listener, function (callback, keyMap) {
+      if (!_xeUtils["default"].isFunction(callback)) {
+        console.warn("[vxe-table-plugin-shortcut-key] The '".concat(keyMap, "' must be a function."));
       }
 
-      skeyList.push(new SKey(realKey, specialKey, funcName));
+      setKeyQueue(listenerMaps, getOpts({
+        key: keyMap,
+        callback: callback
+      }));
     });
   }
 
   var VXETablePluginShortcutKey = {
     install: function install(VXETable, options) {
       if (options) {
-        _xeUtils["default"].each(options.setting, function (key, funcName) {
-          if (handleFuncs[funcName]) {
-            globalOptions[funcName] = key;
-          } else {
-            console.warn("[vxe-table-plugin-shortcut-key] The ".concat(funcName, " doesn't exist."));
-          }
-        });
-
+        parseDisabledKey(options);
+        parseSettingKey(options);
+        parseListenerKey(options);
         VXETable.interceptor.add('event.keydown', handleShortcutKeyEvent);
-        handleKeyMap();
       }
     }
   };
