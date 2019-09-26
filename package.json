@@ -10,9 +10,9 @@
     "index.ts"
   ],
   "main": "dist/index.common.js",
-  "style": "dist/style.css",
-  "unpkg": "dist/index.js",
-  "jsdelivr": "dist/index.js",
+  "style": "dist/style.min.css",
+  "unpkg": "dist/index.min.js",
+  "jsdelivr": "dist/index.min.js",
   "typings": "index.ts",
   "devDependencies": {
     "@babel/core": "^7.4.4",
