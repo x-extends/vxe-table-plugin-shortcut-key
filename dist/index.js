@@ -1,78 +1,64 @@
 (function (global, factory) {
   if (typeof define === "function" && define.amd) {
-    define("vxe-table-plugin-shortcut-key", ["exports", "xe-utils"], factory);
+    define("vxe-table-plugin-shortcut-key", [], factory);
   } else if (typeof exports !== "undefined") {
-    factory(exports, require("xe-utils"));
+    factory();
   } else {
     var mod = {
       exports: {}
     };
-    factory(mod.exports, global.XEUtils);
+    factory();
     global.VXETablePluginShortcutKey = mod.exports.default;
   }
-})(this, function (_exports, _xeUtils) {
+})(this, function () {
   "use strict";
 
-  Object.defineProperty(_exports, "__esModule", {
-    value: true
-  });
-  _exports["default"] = _exports.VXETablePluginShortcutKey = void 0;
-  _xeUtils = _interopRequireDefault(_xeUtils);
+  var _a;
 
-  function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+  exports.__esModule = true;
 
-  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-  function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-  function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+  var xe_utils_1 = require("xe-utils");
 
   var arrowKeys = 'right,up,left,down'.split(',');
   var specialKeys = 'alt,ctrl,shift,meta'.split(',');
   var settingMaps = {};
   var listenerMaps = {};
   var disabledMaps = {};
-  var keyboardCode = {
-    37: 'ArrowRight',
-    38: 'ArrowUp',
-    39: 'ArrowLeft',
-    40: 'ArrowDown'
-  };
 
   var SKey =
-  /*#__PURE__*/
+  /** @class */
   function () {
-    function SKey(realKey, specialKey, funcName, options) {
-      _classCallCheck(this, SKey);
-
+    function SKey(realKey, specialKey, funcName, kConf) {
       this.realKey = realKey;
       this.specialKey = specialKey;
       this.funcName = funcName;
-      this.options = options;
+      this.kConf = kConf;
     }
 
-    _createClass(SKey, [{
-      key: "trigger",
-      value: function trigger(params, evnt) {
-        if (!this.specialKey || evnt["".concat(this.specialKey, "Key")]) {
-          return handleFuncs[this.funcName](params, evnt);
-        }
+    SKey.prototype["trigger"
+    /* TRIGGER */
+    ] = function (params, evnt) {
+      if (!this.specialKey || evnt[this.specialKey + "Key"]) {
+        return exports.handleFuncs[this.funcName](params, evnt);
       }
-    }, {
-      key: "emit",
-      value: function emit(params, evnt) {
-        if (!this.specialKey || evnt["".concat(this.specialKey, "Key")]) {
-          return this.options.callback(params, evnt);
-        }
+    };
+
+    SKey.prototype["emit"
+    /* EMIT */
+    ] = function (params, evnt) {
+      if (!this.specialKey || evnt[this.specialKey + "Key"]) {
+        return this.kConf.callback(params, evnt);
       }
-    }]);
+    };
 
     return SKey;
   }();
 
+  exports.SKey = SKey;
+
   function getEventKey(key) {
     if (arrowKeys.indexOf(key.toLowerCase()) > -1) {
-      return "Arrow".concat(key);
+      return "Arrow" + key;
     }
 
     return key;
@@ -86,8 +72,8 @@
   function handleChangePage(func) {
     return function (params, evnt) {
       var $table = params.$table;
-      var _$table$mouseConfig = $table.mouseConfig,
-          mouseConfig = _$table$mouseConfig === void 0 ? {} : _$table$mouseConfig;
+      var _a = $table.mouseConfig,
+          mouseConfig = _a === void 0 ? {} : _a;
       var $grid = $table.$grid;
 
       if ($grid && mouseConfig.selected !== true && ['input', 'textarea'].indexOf(evnt.target.tagName.toLowerCase()) === -1 && isTriggerPage(params)) {
@@ -130,48 +116,63 @@
       }
     };
   }
+  /**
+   * 快捷键处理方法
+   */
 
-  var handleFuncs = {
-    'table.edit.actived': function tableEditActived(params, evnt) {
-      var $table = params.$table;
-      var selected = $table.getMouseSelecteds();
 
-      if (selected) {
-        evnt.preventDefault();
-        $table.setActiveCell(selected.row, selected.column.property);
-        return false;
+  exports.handleFuncs = (_a = {}, _a["table.edit.actived"
+  /* TABLE_EDIT_ACTIVED */
+  ] = function (params, evnt) {
+    var $table = params.$table;
+    var selected = $table.getMouseSelecteds();
+
+    if (selected) {
+      evnt.preventDefault();
+      $table.setActiveCell(selected.row, selected.column.property);
+      return false;
+    }
+  }, _a["table.edit.closed"
+  /* TABLE_EDIT_CLOSED */
+  ] = function (params, evnt) {
+    var $table = params.$table;
+    var _a = $table.mouseConfig,
+        mouseConfig = _a === void 0 ? {} : _a;
+    var actived = $table.getActiveRow();
+
+    if (actived) {
+      evnt.preventDefault();
+      $table.clearActived(evnt);
+
+      if (mouseConfig.selected) {
+        $table.$nextTick(function () {
+          return $table.setSelectCell(actived.row, actived.column.property);
+        });
       }
-    },
-    'table.edit.closed': function tableEditClosed(params, evnt) {
-      var $table = params.$table;
-      var _$table$mouseConfig2 = $table.mouseConfig,
-          mouseConfig = _$table$mouseConfig2 === void 0 ? {} : _$table$mouseConfig2;
-      var actived = $table.getActiveRow();
 
-      if (actived) {
-        evnt.preventDefault();
-        $table.clearActived(evnt);
-
-        if (mouseConfig.selected) {
-          $table.$nextTick(function () {
-            return $table.setSelectCell(actived.row, actived.column.property);
-          });
-        }
-
-        return false;
-      }
-    },
-    'table.edit.rightTabMove': handleTabMove(0),
-    'table.edit.leftTabMove': handleTabMove(1),
-    'table.cell.leftMove': handleArrowMove(0),
-    'table.cell.upMove': handleArrowMove(1),
-    'table.cell.rightMove': handleArrowMove(2),
-    'table.cell.downMove': handleArrowMove(3),
-    'pager.prevPage': handleChangePage('prevPage'),
-    'pager.nextPage': handleChangePage('nextPage'),
-    'pager.prevJump': handleChangePage('prevJump'),
-    'pager.nextJump': handleChangePage('nextJump')
-  };
+      return false;
+    }
+  }, _a["table.edit.rightTabMove"
+  /* TABLE_EDIT_RIGHTTABMOVE */
+  ] = handleTabMove(false), _a["table.edit.leftTabMove"
+  /* TABLE_EDIT_LEFTTABMOVE */
+  ] = handleTabMove(true), _a["table.cell.leftMove"
+  /* TABLE_CELL_LEFTMOVE */
+  ] = handleArrowMove(0), _a["table.cell.upMove"
+  /* TABLE_CELL_UPMOVE */
+  ] = handleArrowMove(1), _a["table.cell.rightMove"
+  /* TABLE_CELL_RIGHTMOVE */
+  ] = handleArrowMove(2), _a["table.cell.downMove"
+  /* TABLE_CELL_DOWNMOVE */
+  ] = handleArrowMove(3), _a["pager.prevPage"
+  /* PAGER_PREVPAGE */
+  ] = handleChangePage('prevPage'), _a["pager.nextPage"
+  /* PAGER_NEXTPAGE */
+  ] = handleChangePage('nextPage'), _a["pager.prevJump"
+  /* PAGER_PREVJUMP */
+  ] = handleChangePage('prevJump'), _a["pager.nextJump"
+  /* PAGER_NEXTJUMP */
+  ] = handleChangePage('nextJump'), _a);
 
   function runEvent(key, maps, prop, params, evnt) {
     var skeyList = maps[key.toLowerCase()];
@@ -184,30 +185,36 @@
   }
 
   function handleShortcutKeyEvent(params, evnt) {
-    var key = getEventKey(evnt.key) || keyboardCode[evnt.keyCode];
+    var key = getEventKey(evnt.key);
 
-    if (!runEvent(key, disabledMaps, 'emit', params, evnt)) {
-      runEvent(key, settingMaps, 'trigger', params, evnt);
-      runEvent(key, listenerMaps, 'emit', params, evnt);
+    if (!runEvent(key, disabledMaps, "emit"
+    /* EMIT */
+    , params, evnt)) {
+      runEvent(key, settingMaps, "trigger"
+      /* TRIGGER */
+      , params, evnt);
+      runEvent(key, listenerMaps, "emit"
+      /* EMIT */
+      , params, evnt);
     }
   }
 
-  function parseKeys(keyMap) {
+  function parseKeys(key) {
     var specialKey;
     var realKey;
-    var keys = keyMap.split('+');
-    keys.forEach(function (key) {
-      key = key.toLowerCase().trim();
+    var keys = key.split('+');
+    keys.forEach(function (item) {
+      item = item.toLowerCase().trim();
 
-      if (specialKeys.indexOf(key) > -1) {
-        specialKey = key;
+      if (specialKeys.indexOf(item) > -1) {
+        specialKey = item;
       } else {
-        realKey = key;
+        realKey = item;
       }
     });
 
     if (!realKey || keys.length > 2 || keys.length === 2 && !specialKey) {
-      throw new Error("[vxe-table-plugin-shortcut-key] Invalid shortcut key configuration '".concat(keyMap, "'."));
+      throw new Error("[vxe-table-plugin-shortcut-key] Invalid shortcut key configuration '" + key + "'.");
     }
 
     return {
@@ -216,10 +223,10 @@
     };
   }
 
-  function setKeyQueue(maps, opts, funcName) {
-    var _parseKeys = parseKeys(opts.keyMap),
-        specialKey = _parseKeys.specialKey,
-        realKey = _parseKeys.realKey;
+  function setKeyQueue(maps, kConf, funcName) {
+    var _a = parseKeys(kConf.key),
+        specialKey = _a.specialKey,
+        realKey = _a.realKey;
 
     var skeyList = maps[realKey];
 
@@ -230,81 +237,70 @@
     if (skeyList.some(function (skey) {
       return skey.realKey === realKey && skey.specialKey === specialKey;
     })) {
-      throw new Error("[vxe-table-plugin-shortcut-key] Shortcut key conflict '".concat(opts.keyMap, "'."));
+      throw new Error("[vxe-table-plugin-shortcut-key] Shortcut key conflict '" + kConf.key + "'.");
     }
 
-    skeyList.push(new SKey(realKey, specialKey, funcName, opts));
-  }
-
-  function getOpts(conf) {
-    return _xeUtils["default"].isString(conf) ? {
-      keyMap: conf
-    } : _xeUtils["default"].assign({
-      keyMap: conf.key
-    }, conf);
+    skeyList.push(new SKey(realKey, specialKey, funcName, kConf));
   }
 
   function parseDisabledKey(options) {
-    _xeUtils["default"].each(options.disabled, function (conf) {
-      var callback = function callback() {
-        return false;
-      };
-
-      var opts = _xeUtils["default"].isString(conf) ? {
-        keyMap: conf,
-        callback: callback
-      } : _xeUtils["default"].assign({
-        keyMap: conf.key,
-        callback: callback
-      }, conf);
-
-      if (!_xeUtils["default"].isFunction(opts.callback)) {
-        console.warn("[vxe-table-plugin-shortcut-key] The '".concat(opts.keyMap, "' must be a function."));
-      }
-
-      setKeyQueue(disabledMaps, opts);
+    xe_utils_1["default"].each(options.disabled, function (conf) {
+      var opts = xe_utils_1["default"].isString(conf) ? {
+        key: conf
+      } : conf;
+      setKeyQueue(disabledMaps, xe_utils_1["default"].assign({
+        callback: function callback() {
+          return false;
+        }
+      }, opts));
     });
   }
 
   function parseSettingKey(options) {
-    _xeUtils["default"].each(options.setting, function (conf, funcName) {
-      if (!handleFuncs[funcName]) {
-        console.warn("[vxe-table-plugin-shortcut-key] The '".concat(funcName, "' not exist."));
+    xe_utils_1["default"].each(options.setting, function (opts, funcName) {
+      var kConf = xe_utils_1["default"].isString(opts) ? {
+        key: opts
+      } : opts;
+
+      if (!exports.handleFuncs[funcName]) {
+        console.warn("[vxe-table-plugin-shortcut-key] '" + funcName + "' not exist.");
       }
 
-      setKeyQueue(settingMaps, getOpts(conf), funcName);
+      setKeyQueue(settingMaps, kConf, funcName);
     });
   }
 
   function parseListenerKey(options) {
-    _xeUtils["default"].each(options.listener, function (callback, keyMap) {
-      if (!_xeUtils["default"].isFunction(callback)) {
-        console.warn("[vxe-table-plugin-shortcut-key] The '".concat(keyMap, "' must be a function."));
+    xe_utils_1["default"].each(options.listener, function (callback, key) {
+      if (!xe_utils_1["default"].isFunction(callback)) {
+        console.warn("[vxe-table-plugin-shortcut-key] '" + key + "' requires the callback function to be set.");
       }
 
-      setKeyQueue(listenerMaps, getOpts({
-        key: keyMap,
+      setKeyQueue(listenerMaps, {
+        key: key,
         callback: callback
-      }));
+      });
     });
   }
+  /**
+   * 基于 vxe-table 表格的增强插件，为键盘操作提供快捷键的设置
+   */
 
-  var VXETablePluginShortcutKey = {
-    install: function install(VXETable, options) {
+
+  exports.VXETablePluginShortcutKey = {
+    install: function install(xtable, options) {
       if (options) {
         parseDisabledKey(options);
         parseSettingKey(options);
         parseListenerKey(options);
-        VXETable.interceptor.add('event.keydown', handleShortcutKeyEvent);
+        xtable.interceptor.add('event.keydown', handleShortcutKeyEvent);
       }
     }
   };
-  _exports.VXETablePluginShortcutKey = VXETablePluginShortcutKey;
 
   if (typeof window !== 'undefined' && window.VXETable) {
-    window.VXETable.use(VXETablePluginShortcutKey);
+    window.VXETable.use(exports.VXETablePluginShortcutKey);
   }
 
-  var _default = VXETablePluginShortcutKey;
-  _exports["default"] = _default;
+  exports["default"] = exports.VXETablePluginShortcutKey;
 });
