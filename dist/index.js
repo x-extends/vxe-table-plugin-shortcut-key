@@ -1,24 +1,37 @@
 (function (global, factory) {
   if (typeof define === "function" && define.amd) {
-    define("vxe-table-plugin-shortcut-key", [], factory);
+    define("vxe-table-plugin-shortcut-key", ["exports", "xe-utils"], factory);
   } else if (typeof exports !== "undefined") {
-    factory();
+    factory(exports, require("xe-utils"));
   } else {
     var mod = {
       exports: {}
     };
-    factory();
+    factory(mod.exports, global.XEUtils);
     global.VXETablePluginShortcutKey = mod.exports.default;
   }
-})(this, function () {
+})(this, function (_exports, _xeUtils) {
   "use strict";
 
-  var _a;
+  Object.defineProperty(_exports, "__esModule", {
+    value: true
+  });
+  _exports["default"] = _exports.VXETablePluginShortcutKey = _exports.handleFuncs = _exports.SKey = void 0;
+  _xeUtils = _interopRequireDefault(_xeUtils);
 
-  exports.__esModule = true;
+  var _handleFuncs;
 
-  var xe_utils_1 = require("xe-utils");
+  function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
+  function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+  function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+  function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+  function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+  // import VXETable from 'vxe-table'
   var arrowKeys = 'right,up,left,down'.split(',');
   var specialKeys = 'alt,ctrl,shift,meta'.split(',');
   var settingMaps = {};
@@ -26,39 +39,45 @@
   var disabledMaps = {};
 
   var SKey =
-  /** @class */
+  /*#__PURE__*/
   function () {
     function SKey(realKey, specialKey, funcName, kConf) {
+      _classCallCheck(this, SKey);
+
       this.realKey = realKey;
       this.specialKey = specialKey;
       this.funcName = funcName;
       this.kConf = kConf;
     }
 
-    SKey.prototype["trigger"
-    /* TRIGGER */
-    ] = function (params, evnt) {
-      if (!this.specialKey || evnt[this.specialKey + "Key"]) {
-        return exports.handleFuncs[this.funcName](params, evnt);
+    _createClass(SKey, [{
+      key: "trigger"
+      /* TRIGGER */
+      ,
+      value: function trigger(params, evnt) {
+        if (!this.specialKey || evnt["".concat(this.specialKey, "Key")]) {
+          return handleFuncs[this.funcName](params, evnt);
+        }
       }
-    };
-
-    SKey.prototype["emit"
-    /* EMIT */
-    ] = function (params, evnt) {
-      if (!this.specialKey || evnt[this.specialKey + "Key"]) {
-        return this.kConf.callback(params, evnt);
+    }, {
+      key: "emit"
+      /* EMIT */
+      ,
+      value: function emit(params, evnt) {
+        if (!this.specialKey || evnt["".concat(this.specialKey, "Key")]) {
+          return this.kConf.callback(params, evnt);
+        }
       }
-    };
+    }]);
 
     return SKey;
   }();
 
-  exports.SKey = SKey;
+  _exports.SKey = SKey;
 
   function getEventKey(key) {
     if (arrowKeys.indexOf(key.toLowerCase()) > -1) {
-      return "Arrow" + key;
+      return "Arrow".concat(key);
     }
 
     return key;
@@ -72,8 +91,8 @@
   function handleChangePage(func) {
     return function (params, evnt) {
       var $table = params.$table;
-      var _a = $table.mouseConfig,
-          mouseConfig = _a === void 0 ? {} : _a;
+      var _$table$mouseConfig = $table.mouseConfig,
+          mouseConfig = _$table$mouseConfig === void 0 ? {} : _$table$mouseConfig;
       var $grid = $table.$grid;
 
       if ($grid && mouseConfig.selected !== true && ['input', 'textarea'].indexOf(evnt.target.tagName.toLowerCase()) === -1 && isTriggerPage(params)) {
@@ -121,9 +140,9 @@
    */
 
 
-  exports.handleFuncs = (_a = {}, _a["table.edit.actived"
+  var handleFuncs = (_handleFuncs = {}, _defineProperty(_handleFuncs, "table.edit.actived"
   /* TABLE_EDIT_ACTIVED */
-  ] = function (params, evnt) {
+  , function tableEditActived(params, evnt) {
     var $table = params.$table;
     var selected = $table.getMouseSelecteds();
 
@@ -132,12 +151,12 @@
       $table.setActiveCell(selected.row, selected.column.property);
       return false;
     }
-  }, _a["table.edit.closed"
+  }), _defineProperty(_handleFuncs, "table.edit.closed"
   /* TABLE_EDIT_CLOSED */
-  ] = function (params, evnt) {
+  , function tableEditClosed(params, evnt) {
     var $table = params.$table;
-    var _a = $table.mouseConfig,
-        mouseConfig = _a === void 0 ? {} : _a;
+    var _$table$mouseConfig2 = $table.mouseConfig,
+        mouseConfig = _$table$mouseConfig2 === void 0 ? {} : _$table$mouseConfig2;
     var actived = $table.getActiveRow();
 
     if (actived) {
@@ -152,27 +171,28 @@
 
       return false;
     }
-  }, _a["table.edit.rightTabMove"
+  }), _defineProperty(_handleFuncs, "table.edit.rightTabMove"
   /* TABLE_EDIT_RIGHTTABMOVE */
-  ] = handleTabMove(false), _a["table.edit.leftTabMove"
+  , handleTabMove(false)), _defineProperty(_handleFuncs, "table.edit.leftTabMove"
   /* TABLE_EDIT_LEFTTABMOVE */
-  ] = handleTabMove(true), _a["table.cell.leftMove"
+  , handleTabMove(true)), _defineProperty(_handleFuncs, "table.cell.leftMove"
   /* TABLE_CELL_LEFTMOVE */
-  ] = handleArrowMove(0), _a["table.cell.upMove"
+  , handleArrowMove(0)), _defineProperty(_handleFuncs, "table.cell.upMove"
   /* TABLE_CELL_UPMOVE */
-  ] = handleArrowMove(1), _a["table.cell.rightMove"
+  , handleArrowMove(1)), _defineProperty(_handleFuncs, "table.cell.rightMove"
   /* TABLE_CELL_RIGHTMOVE */
-  ] = handleArrowMove(2), _a["table.cell.downMove"
+  , handleArrowMove(2)), _defineProperty(_handleFuncs, "table.cell.downMove"
   /* TABLE_CELL_DOWNMOVE */
-  ] = handleArrowMove(3), _a["pager.prevPage"
+  , handleArrowMove(3)), _defineProperty(_handleFuncs, "pager.prevPage"
   /* PAGER_PREVPAGE */
-  ] = handleChangePage('prevPage'), _a["pager.nextPage"
+  , handleChangePage('prevPage')), _defineProperty(_handleFuncs, "pager.nextPage"
   /* PAGER_NEXTPAGE */
-  ] = handleChangePage('nextPage'), _a["pager.prevJump"
+  , handleChangePage('nextPage')), _defineProperty(_handleFuncs, "pager.prevJump"
   /* PAGER_PREVJUMP */
-  ] = handleChangePage('prevJump'), _a["pager.nextJump"
+  , handleChangePage('prevJump')), _defineProperty(_handleFuncs, "pager.nextJump"
   /* PAGER_NEXTJUMP */
-  ] = handleChangePage('nextJump'), _a);
+  , handleChangePage('nextJump')), _handleFuncs);
+  _exports.handleFuncs = handleFuncs;
 
   function runEvent(key, maps, prop, params, evnt) {
     var skeyList = maps[key.toLowerCase()];
@@ -214,7 +234,7 @@
     });
 
     if (!realKey || keys.length > 2 || keys.length === 2 && !specialKey) {
-      throw new Error("[vxe-table-plugin-shortcut-key] Invalid shortcut key configuration '" + key + "'.");
+      throw new Error("[vxe-table-plugin-shortcut-key] Invalid shortcut key configuration '".concat(key, "'."));
     }
 
     return {
@@ -224,9 +244,9 @@
   }
 
   function setKeyQueue(maps, kConf, funcName) {
-    var _a = parseKeys(kConf.key),
-        specialKey = _a.specialKey,
-        realKey = _a.realKey;
+    var _parseKeys = parseKeys(kConf.key),
+        specialKey = _parseKeys.specialKey,
+        realKey = _parseKeys.realKey;
 
     var skeyList = maps[realKey];
 
@@ -237,18 +257,18 @@
     if (skeyList.some(function (skey) {
       return skey.realKey === realKey && skey.specialKey === specialKey;
     })) {
-      throw new Error("[vxe-table-plugin-shortcut-key] Shortcut key conflict '" + kConf.key + "'.");
+      throw new Error("[vxe-table-plugin-shortcut-key] Shortcut key conflict '".concat(kConf.key, "'."));
     }
 
     skeyList.push(new SKey(realKey, specialKey, funcName, kConf));
   }
 
   function parseDisabledKey(options) {
-    xe_utils_1["default"].each(options.disabled, function (conf) {
-      var opts = xe_utils_1["default"].isString(conf) ? {
+    _xeUtils["default"].each(options.disabled, function (conf) {
+      var opts = _xeUtils["default"].isString(conf) ? {
         key: conf
       } : conf;
-      setKeyQueue(disabledMaps, xe_utils_1["default"].assign({
+      setKeyQueue(disabledMaps, _xeUtils["default"].assign({
         callback: function callback() {
           return false;
         }
@@ -257,13 +277,13 @@
   }
 
   function parseSettingKey(options) {
-    xe_utils_1["default"].each(options.setting, function (opts, funcName) {
-      var kConf = xe_utils_1["default"].isString(opts) ? {
+    _xeUtils["default"].each(options.setting, function (opts, funcName) {
+      var kConf = _xeUtils["default"].isString(opts) ? {
         key: opts
       } : opts;
 
-      if (!exports.handleFuncs[funcName]) {
-        console.warn("[vxe-table-plugin-shortcut-key] '" + funcName + "' not exist.");
+      if (!handleFuncs[funcName]) {
+        console.warn("[vxe-table-plugin-shortcut-key] '".concat(funcName, "' not exist."));
       }
 
       setKeyQueue(settingMaps, kConf, funcName);
@@ -271,9 +291,9 @@
   }
 
   function parseListenerKey(options) {
-    xe_utils_1["default"].each(options.listener, function (callback, key) {
-      if (!xe_utils_1["default"].isFunction(callback)) {
-        console.warn("[vxe-table-plugin-shortcut-key] '" + key + "' requires the callback function to be set.");
+    _xeUtils["default"].each(options.listener, function (callback, key) {
+      if (!_xeUtils["default"].isFunction(callback)) {
+        console.warn("[vxe-table-plugin-shortcut-key] '".concat(key, "' requires the callback function to be set."));
       }
 
       setKeyQueue(listenerMaps, {
@@ -287,7 +307,7 @@
    */
 
 
-  exports.VXETablePluginShortcutKey = {
+  var VXETablePluginShortcutKey = {
     install: function install(xtable, options) {
       if (options) {
         parseDisabledKey(options);
@@ -297,10 +317,12 @@
       }
     }
   };
+  _exports.VXETablePluginShortcutKey = VXETablePluginShortcutKey;
 
   if (typeof window !== 'undefined' && window.VXETable) {
-    window.VXETable.use(exports.VXETablePluginShortcutKey);
+    window.VXETable.use(VXETablePluginShortcutKey);
   }
 
-  exports["default"] = exports.VXETablePluginShortcutKey;
+  var _default = VXETablePluginShortcutKey;
+  _exports["default"] = _default;
 });
