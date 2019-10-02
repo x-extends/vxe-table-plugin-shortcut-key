@@ -50,20 +50,20 @@ export class SKey {
   }
 }
 
-function getEventKey (key: string) {
+function getEventKey (key: string): string {
   if (arrowKeys.indexOf(key.toLowerCase()) > -1) {
     return `Arrow${key}`
   }
   return key
 }
 
-function isTriggerPage (params: any) {
+function isTriggerPage (params: any): boolean {
   const { $table } = params
   return !$table.getActiveRow()
 }
 
 function handleChangePage (func: string) {
-  return function (params: any, evnt: any) {
+  return function (params: any, evnt: any): any {
     const { $table } = params
     const { mouseConfig = {} } = $table
     const $grid = $table.$grid
@@ -78,7 +78,7 @@ function handleChangePage (func: string) {
 }
 
 function handleTabMove (isLeft: boolean) {
-  return function (params: any, evnt: any) {
+  return function (params: any, evnt: any): any {
     const { $table } = params
     const actived = $table.getActiveRow()
     const selected = $table.getMouseSelecteds()
@@ -92,7 +92,7 @@ function handleTabMove (isLeft: boolean) {
 }
 
 function handleArrowMove (arrowIndex: number) {
-  return function (params: any, evnt: any) {
+  return function (params: any, evnt: any): any {
     const { $table } = params
     const selected = $table.getMouseSelecteds()
     const arrows = [0, 0, 0, 0]
@@ -108,7 +108,7 @@ function handleArrowMove (arrowIndex: number) {
  * 快捷键处理方法
  */
 export const handleFuncs = {
-  [FUNC_NANE.TABLE_EDIT_ACTIVED] (params: any, evnt: any) {
+  [FUNC_NANE.TABLE_EDIT_ACTIVED] (params: any, evnt: any): any {
     const { $table } = params
     const selected = $table.getMouseSelecteds()
     if (selected) {
@@ -117,7 +117,7 @@ export const handleFuncs = {
       return false
     }
   },
-  [FUNC_NANE.TABLE_EDIT_CLOSED] (params: any, evnt: any) {
+  [FUNC_NANE.TABLE_EDIT_CLOSED] (params: any, evnt: any): any {
     const { $table } = params
     const { mouseConfig = {} } = $table
     const actived = $table.getActiveRow()
@@ -142,7 +142,7 @@ export const handleFuncs = {
   [FUNC_NANE.PAGER_NEXTJUMP]: handleChangePage('nextJump')
 }
 
-function runEvent (key: string, maps: any, prop: SKEY_NANE, params: any, evnt: any) {
+function runEvent (key: string, maps: any, prop: SKEY_NANE, params: any, evnt: any): boolean {
   let skeyList = maps[key.toLowerCase()]
   if (skeyList) {
     return skeyList.some((skey: SKey) => skey[prop](params, evnt) === false)
@@ -157,7 +157,12 @@ function handleShortcutKeyEvent (params: any, evnt: any) {
   }
 }
 
-function parseKeys (key: string) {
+interface parseKeyRest {
+  specialKey?: string;
+  realKey?: string;
+}
+
+function parseKeys (key: string): parseKeyRest {
   let specialKey
   let realKey
   let keys = key.split('+')
