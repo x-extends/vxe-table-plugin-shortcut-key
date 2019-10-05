@@ -1,11 +1,15 @@
 import XEUtils from 'xe-utils/methods/xe-utils'
-// import VXETable from 'vxe-table'
+import VXETable from 'vxe-table/lib/vxe-table'
+
+interface KeyStoreMaps {
+  [propName: string]: any[];
+}
 
 const arrowKeys = 'right,up,left,down'.split(',')
 const specialKeys = 'alt,ctrl,shift,meta'.split(',')
-const settingMaps = {}
-const listenerMaps = {}
-const disabledMaps = {}
+const settingMaps: KeyStoreMaps = {}
+const listenerMaps: KeyStoreMaps = {}
+const disabledMaps: KeyStoreMaps = {}
 
 export const enum FUNC_NANE {
   TABLE_EDIT_ACTIVED = 'table.edit.actived',
@@ -30,9 +34,9 @@ export const enum SKEY_NANE {
 export class SKey {
   realKey: string;
   specialKey: string;
-  funcName: FUNC_NANE;
-  kConf: ShortcutKeyConf;
-  constructor (realKey: string, specialKey: string, funcName: FUNC_NANE, kConf: ShortcutKeyConf) {
+  funcName?: FUNC_NANE;
+  kConf?: ShortcutKeyConf;
+  constructor (realKey: string, specialKey: string, funcName?: FUNC_NANE, kConf?: ShortcutKeyConf) {
     this.realKey = realKey
     this.specialKey = specialKey
     this.funcName = funcName
@@ -40,12 +44,16 @@ export class SKey {
   }
   [SKEY_NANE.TRIGGER] (params: any, evnt: any) {
     if (!this.specialKey || evnt[`${this.specialKey}Key`]) {
-      return handleFuncs[this.funcName](params, evnt)
+      if (this.funcName) {
+        return handleFuncs[this.funcName](params, evnt)
+      }
     }
   }
   [SKEY_NANE.EMIT] (params: any, evnt: any) {
     if (!this.specialKey || evnt[`${this.specialKey}Key`]) {
-      return this.kConf.callback(params, evnt)
+      if (this.kConf) {
+        return this.kConf.callback(params, evnt)
+      }
     }
   }
 }
@@ -142,7 +150,7 @@ export const handleFuncs = {
   [FUNC_NANE.PAGER_NEXTJUMP]: handleChangePage('nextJump')
 }
 
-function runEvent (key: string, maps: any, prop: SKEY_NANE, params: any, evnt: any): boolean {
+function runEvent (key: string, maps: any, prop: SKEY_NANE, params: any, evnt: any) {
   let skeyList = maps[key.toLowerCase()]
   if (skeyList) {
     return skeyList.some((skey: SKey) => skey[prop](params, evnt) === false)
@@ -158,13 +166,13 @@ function handleShortcutKeyEvent (params: any, evnt: any) {
 }
 
 interface parseKeyRest {
-  specialKey?: string;
-  realKey?: string;
+  realKey: string;
+  specialKey: string;
 }
 
 function parseKeys (key: string): parseKeyRest {
-  let specialKey
-  let realKey
+  let specialKey = ''
+  let realKey = ''
   let keys = key.split('+')
   keys.forEach((item: string) => {
     item = item.toLowerCase().trim()
@@ -177,11 +185,11 @@ function parseKeys (key: string): parseKeyRest {
   if (!realKey || keys.length > 2 || (keys.length === 2 && !specialKey)) {
     throw new Error(`[vxe-table-plugin-shortcut-key] Invalid shortcut key configuration '${key}'.`)
   }
-  return { specialKey, realKey }
+  return { realKey, specialKey }
 }
 
-function setKeyQueue (maps: any, kConf: ShortcutKeyConf, funcName?: FUNC_NANE) {
-  let { specialKey, realKey } = parseKeys(kConf.key)
+function setKeyQueue (maps: KeyStoreMaps, kConf: ShortcutKeyConf, funcName?: FUNC_NANE) {
+  let { realKey, specialKey } = parseKeys(kConf.key)
   let skeyList = maps[realKey]
   if (!skeyList) {
     skeyList = maps[realKey] = []
@@ -219,12 +227,12 @@ function parseListenerKey (options: ShortcutKeyOptions) {
 }
 
 export interface ShortcutKeyConf {
-  key?: string;
-  callback?: Function
+  key: string;
+  callback: Function
 }
 
 export interface ShortcutKeyOptions {
-  disabled: string | Array<ShortcutKeyConf>;
+  disabled: string | ShortcutKeyConf[];
   listener: object;
   setting: object;
 }
@@ -233,7 +241,7 @@ export interface ShortcutKeyOptions {
  * 基于 vxe-table 表格的增强插件，为键盘操作提供快捷键的设置
  */
 export const VXETablePluginShortcutKey = {
-  install (xtable: any, options?: ShortcutKeyOptions) {
+  install (xtable: typeof VXETable, options?: ShortcutKeyOptions) {
     if (options) {
       parseDisabledKey(options)
       parseSettingKey(options)

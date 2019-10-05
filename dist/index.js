@@ -31,7 +31,6 @@
 
   function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
-  // import VXETable from 'vxe-table'
   var arrowKeys = 'right,up,left,down'.split(',');
   var specialKeys = 'alt,ctrl,shift,meta'.split(',');
   var settingMaps = {};
@@ -56,7 +55,9 @@
       ,
       value: function trigger(params, evnt) {
         if (!this.specialKey || evnt["".concat(this.specialKey, "Key")]) {
-          return handleFuncs[this.funcName](params, evnt);
+          if (this.funcName) {
+            return handleFuncs[this.funcName](params, evnt);
+          }
         }
       }
     }, {
@@ -65,7 +66,9 @@
       ,
       value: function emit(params, evnt) {
         if (!this.specialKey || evnt["".concat(this.specialKey, "Key")]) {
-          return this.kConf.callback(params, evnt);
+          if (this.kConf) {
+            return this.kConf.callback(params, evnt);
+          }
         }
       }
     }]);
@@ -220,8 +223,8 @@
   }
 
   function parseKeys(key) {
-    var specialKey;
-    var realKey;
+    var specialKey = '';
+    var realKey = '';
     var keys = key.split('+');
     keys.forEach(function (item) {
       item = item.toLowerCase().trim();
@@ -238,15 +241,15 @@
     }
 
     return {
-      specialKey: specialKey,
-      realKey: realKey
+      realKey: realKey,
+      specialKey: specialKey
     };
   }
 
   function setKeyQueue(maps, kConf, funcName) {
     var _parseKeys = parseKeys(kConf.key),
-        specialKey = _parseKeys.specialKey,
-        realKey = _parseKeys.realKey;
+        realKey = _parseKeys.realKey,
+        specialKey = _parseKeys.specialKey;
 
     var skeyList = maps[realKey];
 
