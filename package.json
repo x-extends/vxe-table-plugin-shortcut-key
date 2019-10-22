@@ -50,7 +50,7 @@
     "vue": "^2.6.10",
     "vxe-table": "^2.6.0-beta.10",
     "xe-clipboard": "^1.7.2",
-    "xe-utils": "^2.2.10"
+    "xe-utils": "^2.2.11"
   },
   "peerDependencies": {
     "vxe-table": ">=2.5.22",
