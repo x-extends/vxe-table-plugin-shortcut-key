@@ -61,8 +61,8 @@ setting: object\<string, string\>
 | table.cell.downMove | 只对 mouse-config 启用后有效，当单元格处于选中状态，则移动到下面的单元格 | ArrowDown |
 | table.cell.leftMove | 只对 mouse-config 启用后有效，当单元格处于选中状态，则移动到左边的单元格 | ArrowLeft |
 | table.cell.rightMove | 只对 mouse-config 启用后有效，当单元格处于选中状态，则移动到右边的单元格 | ArrowRight |
-| table.row.current.topMove | 只对 highlight-current-row 启用后有效，高亮行向上移动 | ArrowUp |
-| table.row.current.downMove | 只对 highlight-current-row 启用后有效，高亮行向上移动 | ArrowDown |
+| table.row.current.topMove | 只对 highlight-current-row 启用后有效，高亮行向上移动 |  |
+| table.row.current.downMove | 只对 highlight-current-row 启用后有效，高亮行向上移动 |  |
 | pager.prevPage | 只对 pager-config 启用后有效，则进入上一页 |  |
 | pager.nextPage | 只对 pager-config 启用后有效，则进入下一页 |  |
 | pager.prevJump | 只对 pager-config 启用后有效，则向上翻页 |  |
