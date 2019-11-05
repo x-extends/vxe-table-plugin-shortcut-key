@@ -109,7 +109,7 @@
     };
   }
 
-  function handleTabMove(isLeft) {
+  function handleCellTabMove(isLeft) {
     return function (params, evnt) {
       var $table = params.$table;
       var actived = $table.getActiveRow();
@@ -125,7 +125,7 @@
     };
   }
 
-  function handleArrowMove(arrowIndex) {
+  function handleCellMove(arrowIndex) {
     return function (params, evnt) {
       var $table = params.$table;
       var selected = $table.getMouseSelecteds();
@@ -135,6 +135,21 @@
       if (selected) {
         $table.moveSelected(selected, arrows[0], arrows[1], arrows[2], arrows[3], evnt);
         return false;
+      }
+    };
+  }
+
+  function handleCurrentRowMove(isDown) {
+    return function (params, evnt) {
+      var $table = params.$table;
+
+      if ($table.highlightCurrentRow) {
+        var currentRow = $table.getCurrentRow();
+
+        if (currentRow) {
+          $table.moveCurrentRow(!isDown, isDown, evnt);
+          return false;
+        }
       }
     };
   }
@@ -176,17 +191,21 @@
     }
   }), _defineProperty(_handleFuncs, "table.edit.rightTabMove"
   /* TABLE_EDIT_RIGHTTABMOVE */
-  , handleTabMove(false)), _defineProperty(_handleFuncs, "table.edit.leftTabMove"
+  , handleCellTabMove(false)), _defineProperty(_handleFuncs, "table.edit.leftTabMove"
   /* TABLE_EDIT_LEFTTABMOVE */
-  , handleTabMove(true)), _defineProperty(_handleFuncs, "table.cell.leftMove"
+  , handleCellTabMove(true)), _defineProperty(_handleFuncs, "table.cell.leftMove"
   /* TABLE_CELL_LEFTMOVE */
-  , handleArrowMove(0)), _defineProperty(_handleFuncs, "table.cell.upMove"
+  , handleCellMove(0)), _defineProperty(_handleFuncs, "table.cell.upMove"
   /* TABLE_CELL_UPMOVE */
-  , handleArrowMove(1)), _defineProperty(_handleFuncs, "table.cell.rightMove"
+  , handleCellMove(1)), _defineProperty(_handleFuncs, "table.cell.rightMove"
   /* TABLE_CELL_RIGHTMOVE */
-  , handleArrowMove(2)), _defineProperty(_handleFuncs, "table.cell.downMove"
+  , handleCellMove(2)), _defineProperty(_handleFuncs, "table.cell.downMove"
   /* TABLE_CELL_DOWNMOVE */
-  , handleArrowMove(3)), _defineProperty(_handleFuncs, "pager.prevPage"
+  , handleCellMove(3)), _defineProperty(_handleFuncs, "table.row.current.topMove"
+  /* TABLE_ROW_CURRENT_TOPMOVE */
+  , handleCurrentRowMove(false)), _defineProperty(_handleFuncs, "table.row.current.downMove"
+  /* TABLE_ROW_CURRENT_DOWNMOVE */
+  , handleCurrentRowMove(true)), _defineProperty(_handleFuncs, "pager.prevPage"
   /* PAGER_PREVPAGE */
   , handleChangePage('prevPage')), _defineProperty(_handleFuncs, "pager.nextPage"
   /* PAGER_NEXTPAGE */

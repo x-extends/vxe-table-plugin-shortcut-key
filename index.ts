@@ -20,6 +20,8 @@ export const enum FUNC_NANE {
   TABLE_CELL_UPMOVE = 'table.cell.upMove',
   TABLE_CELL_RIGHTMOVE = 'table.cell.rightMove',
   TABLE_CELL_DOWNMOVE = 'table.cell.downMove',
+  TABLE_ROW_CURRENT_TOPMOVE = 'table.row.current.topMove',
+  TABLE_ROW_CURRENT_DOWNMOVE = 'table.row.current.downMove',
   PAGER_PREVPAGE = 'pager.prevPage',
   PAGER_NEXTPAGE = 'pager.nextPage',
   PAGER_PREVJUMP = 'pager.prevJump',
@@ -36,20 +38,20 @@ export class SKey {
   specialKey: string;
   funcName?: FUNC_NANE;
   kConf?: ShortcutKeyConf;
-  constructor (realKey: string, specialKey: string, funcName?: FUNC_NANE, kConf?: ShortcutKeyConf) {
+  constructor(realKey: string, specialKey: string, funcName?: FUNC_NANE, kConf?: ShortcutKeyConf) {
     this.realKey = realKey
     this.specialKey = specialKey
     this.funcName = funcName
     this.kConf = kConf
   }
-  [SKEY_NANE.TRIGGER] (params: any, evnt: any) {
+  [SKEY_NANE.TRIGGER](params: any, evnt: any) {
     if (!this.specialKey || evnt[`${this.specialKey}Key`]) {
       if (this.funcName) {
         return handleFuncs[this.funcName](params, evnt)
       }
     }
   }
-  [SKEY_NANE.EMIT] (params: any, evnt: any) {
+  [SKEY_NANE.EMIT](params: any, evnt: any) {
     if (!this.specialKey || evnt[`${this.specialKey}Key`]) {
       if (this.kConf) {
         return this.kConf.callback(params, evnt)
@@ -58,19 +60,19 @@ export class SKey {
   }
 }
 
-function getEventKey (key: string): string {
+function getEventKey(key: string): string {
   if (arrowKeys.indexOf(key.toLowerCase()) > -1) {
     return `Arrow${key}`
   }
   return key
 }
 
-function isTriggerPage (params: any): boolean {
+function isTriggerPage(params: any): boolean {
   const { $table } = params
   return !$table.getActiveRow()
 }
 
-function handleChangePage (func: string) {
+function handleChangePage(func: string) {
   return function (params: any, evnt: any): any {
     const { $table } = params
     const { mouseConfig = {} } = $table
@@ -85,7 +87,7 @@ function handleChangePage (func: string) {
   }
 }
 
-function handleTabMove (isLeft: boolean) {
+function handleCellTabMove(isLeft: boolean) {
   return function (params: any, evnt: any): any {
     const { $table } = params
     const actived = $table.getActiveRow()
@@ -99,7 +101,7 @@ function handleTabMove (isLeft: boolean) {
   }
 }
 
-function handleArrowMove (arrowIndex: number) {
+function handleCellMove(arrowIndex: number) {
   return function (params: any, evnt: any): any {
     const { $table } = params
     const selected = $table.getMouseSelecteds()
@@ -112,11 +114,24 @@ function handleArrowMove (arrowIndex: number) {
   }
 }
 
+function handleCurrentRowMove(isDown: boolean) {
+  return function (params: any, evnt: any): any {
+    const { $table } = params
+    if ($table.highlightCurrentRow) {
+      const currentRow = $table.getCurrentRow()
+      if (currentRow) {
+        $table.moveCurrentRow(!isDown, isDown, evnt)
+        return false
+      }
+    }
+  }
+}
+
 /**
  * 快捷键处理方法
  */
 export const handleFuncs = {
-  [FUNC_NANE.TABLE_EDIT_ACTIVED] (params: any, evnt: any): any {
+  [FUNC_NANE.TABLE_EDIT_ACTIVED](params: any, evnt: any): any {
     const { $table } = params
     const selected = $table.getMouseSelecteds()
     if (selected) {
@@ -125,7 +140,7 @@ export const handleFuncs = {
       return false
     }
   },
-  [FUNC_NANE.TABLE_EDIT_CLOSED] (params: any, evnt: any): any {
+  [FUNC_NANE.TABLE_EDIT_CLOSED](params: any, evnt: any): any {
     const { $table } = params
     const { mouseConfig = {} } = $table
     const actived = $table.getActiveRow()
@@ -138,26 +153,28 @@ export const handleFuncs = {
       return false
     }
   },
-  [FUNC_NANE.TABLE_EDIT_RIGHTTABMOVE]: handleTabMove(false),
-  [FUNC_NANE.TABLE_EDIT_LEFTTABMOVE]: handleTabMove(true),
-  [FUNC_NANE.TABLE_CELL_LEFTMOVE]: handleArrowMove(0),
-  [FUNC_NANE.TABLE_CELL_UPMOVE]: handleArrowMove(1),
-  [FUNC_NANE.TABLE_CELL_RIGHTMOVE]: handleArrowMove(2),
-  [FUNC_NANE.TABLE_CELL_DOWNMOVE]: handleArrowMove(3),
+  [FUNC_NANE.TABLE_EDIT_RIGHTTABMOVE]: handleCellTabMove(false),
+  [FUNC_NANE.TABLE_EDIT_LEFTTABMOVE]: handleCellTabMove(true),
+  [FUNC_NANE.TABLE_CELL_LEFTMOVE]: handleCellMove(0),
+  [FUNC_NANE.TABLE_CELL_UPMOVE]: handleCellMove(1),
+  [FUNC_NANE.TABLE_CELL_RIGHTMOVE]: handleCellMove(2),
+  [FUNC_NANE.TABLE_CELL_DOWNMOVE]: handleCellMove(3),
+  [FUNC_NANE.TABLE_ROW_CURRENT_TOPMOVE]: handleCurrentRowMove(false),
+  [FUNC_NANE.TABLE_ROW_CURRENT_DOWNMOVE]: handleCurrentRowMove(true),
   [FUNC_NANE.PAGER_PREVPAGE]: handleChangePage('prevPage'),
   [FUNC_NANE.PAGER_NEXTPAGE]: handleChangePage('nextPage'),
   [FUNC_NANE.PAGER_PREVJUMP]: handleChangePage('prevJump'),
   [FUNC_NANE.PAGER_NEXTJUMP]: handleChangePage('nextJump')
 }
 
-function runEvent (key: string, maps: any, prop: SKEY_NANE, params: any, evnt: any) {
+function runEvent(key: string, maps: any, prop: SKEY_NANE, params: any, evnt: any) {
   let skeyList = maps[key.toLowerCase()]
   if (skeyList) {
     return skeyList.some((skey: SKey) => skey[prop](params, evnt) === false)
   }
 }
 
-function handleShortcutKeyEvent (params: any, evnt: any) {
+function handleShortcutKeyEvent(params: any, evnt: any) {
   let key = getEventKey(evnt.key)
   if (!runEvent(key, disabledMaps, SKEY_NANE.EMIT, params, evnt)) {
     runEvent(key, settingMaps, SKEY_NANE.TRIGGER, params, evnt)
@@ -170,7 +187,7 @@ interface parseKeyRest {
   specialKey: string;
 }
 
-function parseKeys (key: string): parseKeyRest {
+function parseKeys(key: string): parseKeyRest {
   let specialKey = ''
   let realKey = ''
   let keys = key.split('+')
@@ -188,7 +205,7 @@ function parseKeys (key: string): parseKeyRest {
   return { realKey, specialKey }
 }
 
-function setKeyQueue (maps: KeyStoreMaps, kConf: ShortcutKeyConf, funcName?: FUNC_NANE) {
+function setKeyQueue(maps: KeyStoreMaps, kConf: ShortcutKeyConf, funcName?: FUNC_NANE) {
   let { realKey, specialKey } = parseKeys(kConf.key)
   let skeyList = maps[realKey]
   if (!skeyList) {
@@ -200,14 +217,14 @@ function setKeyQueue (maps: KeyStoreMaps, kConf: ShortcutKeyConf, funcName?: FUN
   skeyList.push(new SKey(realKey, specialKey, funcName, kConf))
 }
 
-function parseDisabledKey (options: ShortcutKeyOptions) {
+function parseDisabledKey(options: ShortcutKeyOptions) {
   XEUtils.each(options.disabled, (conf: any) => {
     let opts = XEUtils.isString(conf) ? { key: conf } : conf
     setKeyQueue(disabledMaps, XEUtils.assign({ callback: () => false }, opts))
   })
 }
 
-function parseSettingKey (options: ShortcutKeyOptions) {
+function parseSettingKey(options: ShortcutKeyOptions) {
   XEUtils.each(options.setting, (opts: any, funcName: FUNC_NANE) => {
     let kConf = XEUtils.isString(opts) ? { key: opts } : opts
     if (!handleFuncs[funcName]) {
@@ -217,7 +234,7 @@ function parseSettingKey (options: ShortcutKeyOptions) {
   })
 }
 
-function parseListenerKey (options: ShortcutKeyOptions) {
+function parseListenerKey(options: ShortcutKeyOptions) {
   XEUtils.each(options.listener, (callback: Function, key: string) => {
     if (!XEUtils.isFunction(callback)) {
       console.warn(`[vxe-table-plugin-shortcut-key] '${key}' requires the callback function to be set.`)
@@ -241,7 +258,7 @@ export interface ShortcutKeyOptions {
  * 基于 vxe-table 表格的增强插件，为键盘操作提供快捷键的设置
  */
 export const VXETablePluginShortcutKey = {
-  install (xtable: typeof VXETable, options?: ShortcutKeyOptions) {
+  install(xtable: typeof VXETable, options?: ShortcutKeyOptions) {
     if (options) {
       parseDisabledKey(options)
       parseSettingKey(options)
