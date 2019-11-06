@@ -220,7 +220,7 @@
     var skeyList = maps[key.toLowerCase()];
 
     if (skeyList) {
-      return skeyList.some(function (skey) {
+      return !skeyList.some(function (skey) {
         return skey[prop](params, evnt) === false;
       });
     }
@@ -232,9 +232,12 @@
     if (!runEvent(key, disabledMaps, "emit"
     /* EMIT */
     , params, evnt)) {
-      runEvent(key, settingMaps, "trigger"
+      if (runEvent(key, settingMaps, "trigger"
       /* TRIGGER */
-      , params, evnt);
+      , params, evnt) === false) {
+        return false;
+      }
+
       runEvent(key, listenerMaps, "emit"
       /* EMIT */
       , params, evnt);

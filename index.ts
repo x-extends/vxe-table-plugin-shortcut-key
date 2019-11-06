@@ -170,14 +170,16 @@ export const handleFuncs = {
 function runEvent(key: string, maps: any, prop: SKEY_NANE, params: any, evnt: any) {
   let skeyList = maps[key.toLowerCase()]
   if (skeyList) {
-    return skeyList.some((skey: SKey) => skey[prop](params, evnt) === false)
+    return !skeyList.some((skey: SKey) => skey[prop](params, evnt) === false)
   }
 }
 
 function handleShortcutKeyEvent(params: any, evnt: any) {
   let key = getEventKey(evnt.key)
   if (!runEvent(key, disabledMaps, SKEY_NANE.EMIT, params, evnt)) {
-    runEvent(key, settingMaps, SKEY_NANE.TRIGGER, params, evnt)
+    if (runEvent(key, settingMaps, SKEY_NANE.TRIGGER, params, evnt) === false) {
+      return false
+    }
     runEvent(key, listenerMaps, SKEY_NANE.EMIT, params, evnt)
   }
 }
