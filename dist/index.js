@@ -324,17 +324,24 @@
       });
     });
   }
+
+  function setup(options) {
+    if (options) {
+      parseDisabledKey(options);
+      parseSettingKey(options);
+      parseListenerKey(options);
+    }
+  }
   /**
    * 基于 vxe-table 表格的增强插件，为键盘操作提供快捷键的设置
    */
 
 
   var VXETablePluginShortcutKey = {
+    setup: setup,
     install: function install(xtable, options) {
       if (options) {
-        parseDisabledKey(options);
-        parseSettingKey(options);
-        parseListenerKey(options);
+        setup(options);
         xtable.interceptor.add('event.keydown', handleShortcutKeyEvent);
       }
     }
