@@ -272,8 +272,8 @@ export const VXETablePluginShortcutKey = {
   install(xtable: typeof VXETable, options?: ShortcutKeyOptions) {
     if (options) {
       setup(options)
-      xtable.interceptor.add('event.keydown', handleShortcutKeyEvent)
     }
+    xtable.interceptor.add('event.keydown', handleShortcutKeyEvent)
   }
 }
 

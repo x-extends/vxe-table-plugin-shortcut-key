@@ -31,8 +31,8 @@ VXETable.use(VXETablePluginShortcutKey, {
   setting: {
     'pager.prevPage': 'ArrowLeft',
     'pager.nextPage': 'ArrowRight', // 单个按键
-    'pager.prevJump': 'Ctrl + W',
-    'pager.nextJump': 'Ctrl + S' // 组合键
+    'pager.prevJump': 'Shift + W',
+    'pager.nextJump': 'Shift + S' // 组合键
   }
 })
 ```

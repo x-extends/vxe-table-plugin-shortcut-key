@@ -345,8 +345,9 @@
     install: function install(xtable, options) {
       if (options) {
         setup(options);
-        xtable.interceptor.add('event.keydown', handleShortcutKeyEvent);
       }
+
+      xtable.interceptor.add('event.keydown', handleShortcutKeyEvent);
     }
   };
   _exports.VXETablePluginShortcutKey = VXETablePluginShortcutKey;
