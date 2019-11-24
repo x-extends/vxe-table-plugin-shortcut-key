@@ -2,7 +2,7 @@ import XEUtils from 'xe-utils/methods/xe-utils'
 import VXETable from 'vxe-table/lib/vxe-table'
 
 interface KeyStoreMaps {
-  [propName: string]: any[];
+  [propName: string]: SKey[];
 }
 
 const arrowKeys = 'right,up,left,down'.split(',')
@@ -68,8 +68,7 @@ function getEventKey(key: string): string {
 }
 
 function isTriggerPage(params: any): boolean {
-  const { $table } = params
-  return !$table.getActiveRow()
+  return !params.$table.getActiveRow()
 }
 
 function handleChangePage(func: string) {
@@ -105,7 +104,7 @@ function handleCellMove(arrowIndex: number) {
   return function (params: any, evnt: any): any {
     const { $table } = params
     const selected = $table.getMouseSelecteds()
-    const arrows = [0, 0, 0, 0]
+    const arrows: number[] = [0, 0, 0, 0]
     arrows[arrowIndex] = 1
     if (selected) {
       $table.moveSelected(selected, arrows[0], arrows[1], arrows[2], arrows[3], evnt)
@@ -168,14 +167,14 @@ export const handleFuncs = {
 }
 
 function runEvent(key: string, maps: any, prop: SKEY_NANE, params: any, evnt: any) {
-  let skeyList = maps[key.toLowerCase()]
+  let skeyList: SKey[] = maps[key.toLowerCase()]
   if (skeyList) {
     return !skeyList.some((skey: SKey) => skey[prop](params, evnt) === false)
   }
 }
 
 function handleShortcutKeyEvent(params: any, evnt: any) {
-  let key = getEventKey(evnt.key)
+  let key: string = getEventKey(evnt.key)
   if (!runEvent(key, disabledMaps, SKEY_NANE.EMIT, params, evnt)) {
     if (runEvent(key, settingMaps, SKEY_NANE.TRIGGER, params, evnt) === false) {
       return false
@@ -190,9 +189,9 @@ interface parseKeyRest {
 }
 
 function parseKeys(key: string): parseKeyRest {
-  let specialKey = ''
-  let realKey = ''
-  let keys = key.split('+')
+  let specialKey: string = ''
+  let realKey: string = ''
+  let keys: string[] = key.split('+')
   keys.forEach((item: string) => {
     item = item.toLowerCase().trim()
     if (specialKeys.indexOf(item) > -1) {
@@ -209,7 +208,7 @@ function parseKeys(key: string): parseKeyRest {
 
 function setKeyQueue(maps: KeyStoreMaps, kConf: ShortcutKeyConf, funcName?: FUNC_NANE) {
   let { realKey, specialKey } = parseKeys(kConf.key)
-  let skeyList = maps[realKey]
+  let skeyList: SKey[] = maps[realKey]
   if (!skeyList) {
     skeyList = maps[realKey] = []
   }
@@ -220,15 +219,15 @@ function setKeyQueue(maps: KeyStoreMaps, kConf: ShortcutKeyConf, funcName?: FUNC
 }
 
 function parseDisabledKey(options: ShortcutKeyOptions) {
-  XEUtils.each(options.disabled, (conf: any) => {
-    let opts = XEUtils.isString(conf) ? { key: conf } : conf
+  XEUtils.each(options.disabled, (conf: string | ShortcutKeyConf) => {
+    let opts: any = XEUtils.isString(conf) ? { key: conf } : conf
     setKeyQueue(disabledMaps, XEUtils.assign({ callback: () => false }, opts))
   })
 }
 
 function parseSettingKey(options: ShortcutKeyOptions) {
-  XEUtils.each(options.setting, (opts: any, funcName: FUNC_NANE) => {
-    let kConf = XEUtils.isString(opts) ? { key: opts } : opts
+  XEUtils.each(options.setting, (opts: string | ShortcutKeySettingConfig, funcName: FUNC_NANE) => {
+    let kConf: any = XEUtils.isString(opts) ? { key: opts } : opts
     if (!handleFuncs[funcName]) {
       console.warn(`[vxe-table-plugin-shortcut-key] '${funcName}' not exist.`)
     }
