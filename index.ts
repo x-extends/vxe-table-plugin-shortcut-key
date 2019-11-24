@@ -250,13 +250,25 @@ export interface ShortcutKeyConf {
   callback: Function
 }
 
-export interface ShortcutKeyOptions {
-  disabled: string | ShortcutKeyConf[];
-  listener: object;
-  setting: object;
+export interface ShortcutKeyListenerConfig {
+  [funcName: string]: (params: any, evnt: any) => any;
 }
 
-function setup(options: any) {
+export interface ShortcutKeySettingConfig {
+  [funcName: string]: string;
+}
+
+export interface ShortcutKeyOptions {
+  disabled?: string[] | ShortcutKeyConf[];
+  listener?: ShortcutKeyListenerConfig;
+  setting?: ShortcutKeySettingConfig;
+}
+
+/**
+ * 设置参数
+ * @param options 参数
+ */
+function setup(options: ShortcutKeyOptions) {
   if (options) {
     parseDisabledKey(options)
     parseSettingKey(options)
