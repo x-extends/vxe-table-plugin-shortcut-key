@@ -49,8 +49,7 @@
     "typescript": "^3.6.3",
     "vue": "^2.6.10",
     "vxe-table": "^2.6.22",
-    "xe-clipboard": "^1.7.2",
-    "xe-utils": "^2.2.12"
+    "xe-utils": "^2.2.15"
   },
   "peerDependencies": {
     "vxe-table": ">=2.5.22",
