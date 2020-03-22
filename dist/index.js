@@ -10,7 +10,7 @@
     factory(mod.exports, global.XEUtils);
     global.VXETablePluginShortcutKey = mod.exports.default;
   }
-})(this, function (_exports, _xeUtils) {
+})(typeof globalThis !== "undefined" ? globalThis : typeof self !== "undefined" ? self : this, function (_exports, _xeUtils) {
   "use strict";
 
   Object.defineProperty(_exports, "__esModule", {
@@ -36,10 +36,9 @@
   var settingMaps = {};
   var listenerMaps = {};
   var disabledMaps = {};
+  /* eslint-enable no-unused-vars */
 
-  var SKey =
-  /*#__PURE__*/
-  function () {
+  var SKey = /*#__PURE__*/function () {
     function SKey(realKey, specialKey, funcName, kConf) {
       _classCallCheck(this, SKey);
 
@@ -87,16 +86,15 @@
   }
 
   function isTriggerPage(params) {
-    var $table = params.$table;
-    return !$table.getActiveRow();
+    return !params.$table.getActiveRecord();
   }
 
   function handleChangePage(func) {
     return function (params, evnt) {
-      var $table = params.$table;
+      var $grid = params.$grid,
+          $table = params.$table;
       var _$table$mouseConfig = $table.mouseConfig,
           mouseConfig = _$table$mouseConfig === void 0 ? {} : _$table$mouseConfig;
-      var $grid = $table.$grid;
 
       if ($grid && mouseConfig.selected !== true && ['input', 'textarea'].indexOf(evnt.target.tagName.toLowerCase()) === -1 && isTriggerPage(params)) {
         var pager = $grid.$refs.pager;
@@ -109,31 +107,15 @@
     };
   }
 
-  function handleCellTabMove(isLeft) {
-    return function (params, evnt) {
-      var $table = params.$table;
-      var actived = $table.getActiveRow();
-      var selected = $table.getMouseSelecteds();
-
-      if (selected) {
-        $table.moveTabSelected(selected, isLeft, evnt);
-      } else if (actived) {
-        $table.moveTabSelected(actived, isLeft, evnt);
-      }
-
-      return false;
-    };
-  }
-
   function handleCellMove(arrowIndex) {
     return function (params, evnt) {
       var $table = params.$table;
-      var selected = $table.getMouseSelecteds();
+      var selected = $table.getSelectedCell();
       var arrows = [0, 0, 0, 0];
       arrows[arrowIndex] = 1;
 
       if (selected) {
-        $table.moveSelected(selected, arrows[0], arrows[1], arrows[2], arrows[3], evnt);
+        $table.moveSelected(selected.row, arrows[0], arrows[1], arrows[2], arrows[3], evnt);
         return false;
       }
     };
@@ -144,7 +126,7 @@
       var $table = params.$table;
 
       if ($table.highlightCurrentRow) {
-        var currentRow = $table.getCurrentRow();
+        var currentRow = $table.getCurrentRecord();
 
         if (currentRow) {
           $table.moveCurrentRow(!isDown, isDown, evnt);
@@ -162,7 +144,7 @@
   /* TABLE_EDIT_ACTIVED */
   , function tableEditActived(params, evnt) {
     var $table = params.$table;
-    var selected = $table.getMouseSelecteds();
+    var selected = $table.getSelectedCell();
 
     if (selected) {
       evnt.preventDefault();
@@ -175,11 +157,11 @@
     var $table = params.$table;
     var _$table$mouseConfig2 = $table.mouseConfig,
         mouseConfig = _$table$mouseConfig2 === void 0 ? {} : _$table$mouseConfig2;
-    var actived = $table.getActiveRow();
+    var actived = $table.getActiveRecord();
 
     if (actived) {
       evnt.preventDefault();
-      $table.clearActived(evnt);
+      $table.clearActived();
 
       if (mouseConfig.selected) {
         $table.$nextTick(function () {
@@ -189,11 +171,7 @@
 
       return false;
     }
-  }), _defineProperty(_handleFuncs, "table.edit.rightTabMove"
-  /* TABLE_EDIT_RIGHTTABMOVE */
-  , handleCellTabMove(false)), _defineProperty(_handleFuncs, "table.edit.leftTabMove"
-  /* TABLE_EDIT_LEFTTABMOVE */
-  , handleCellTabMove(true)), _defineProperty(_handleFuncs, "table.cell.leftMove"
+  }), _defineProperty(_handleFuncs, "table.cell.leftMove"
   /* TABLE_CELL_LEFTMOVE */
   , handleCellMove(0)), _defineProperty(_handleFuncs, "table.cell.upMove"
   /* TABLE_CELL_UPMOVE */
@@ -327,6 +305,11 @@
       });
     });
   }
+  /**
+   * 设置参数
+   * @param options 参数
+   */
+
 
   function setup(options) {
     if (options) {

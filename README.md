@@ -55,8 +55,6 @@ setting: object\<string, string\>
 |------|------|------|
 | table.edit.actived | 只对 edit-config 启用后有效，当单元格处于选中状态时，则进入编辑 | F2 |
 | table.edit.closed | 只对 edit-config 启用后有效，当单元格处于激活状态时，则退出编辑 | Esc |
-| table.edit.leftTabMove | 只对 edit-config / mouse-config 启用后有效，当单元格处于激活状态或者选中状态，则移动到左侧单元格 | Shift + Tab |
-| table.edit.rightTabMove | 只对 edit-config / mouse-config 启用后有效，当单元格处于激活状态或者选中状态，则移动到右侧单元格 | Tab |
 | table.cell.upMove | 只对 mouse-config 启用后有效，当单元格处于选中状态，则移动到上面的单元格 | ArrowUp |
 | table.cell.downMove | 只对 mouse-config 启用后有效，当单元格处于选中状态，则移动到下面的单元格 | ArrowDown |
 | table.cell.leftMove | 只对 mouse-config 启用后有效，当单元格处于选中状态，则移动到左边的单元格 | ArrowLeft |
