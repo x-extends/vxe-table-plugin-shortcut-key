@@ -1,5 +1,7 @@
+/* eslint-disable no-unused-vars */
 import XEUtils from 'xe-utils/methods/xe-utils'
-import { VXETable, InterceptorKeydownParams } from 'vxe-table/lib/vxe-table' // eslint-disable-line no-unused-vars
+import { VXETable, InterceptorKeydownParams } from 'vxe-table/lib/vxe-table'
+/* eslint-enable no-unused-vars */
 
 interface KeyStoreMaps {
   [propName: string]: SKey[];
