@@ -36,7 +36,6 @@
   var settingMaps = {};
   var listenerMaps = {};
   var disabledMaps = {};
-  /* eslint-enable no-unused-vars */
 
   var SKey = /*#__PURE__*/function () {
     function SKey(realKey, specialKey, funcName, kConf) {

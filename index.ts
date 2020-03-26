@@ -1,19 +1,7 @@
 /* eslint-disable no-unused-vars */
 import XEUtils from 'xe-utils/methods/xe-utils'
 import { VXETable, InterceptorKeydownParams } from 'vxe-table/lib/vxe-table'
-/* eslint-enable no-unused-vars */
 
-interface KeyStoreMaps {
-  [propName: string]: SKey[];
-}
-
-const arrowKeys = 'right,up,left,down'.split(',')
-const specialKeys = 'alt,ctrl,shift,meta'.split(',')
-const settingMaps: KeyStoreMaps = {}
-const listenerMaps: KeyStoreMaps = {}
-const disabledMaps: KeyStoreMaps = {}
-
-/* eslint-disable no-unused-vars */
 export const enum FUNC_NANE {
   TABLE_EDIT_ACTIVED = 'table.edit.actived',
   TABLE_EDIT_CLOSED = 'table.edit.closed',
@@ -34,6 +22,16 @@ export const enum SKEY_NANE {
   EMIT = 'emit'
 }
 /* eslint-enable no-unused-vars */
+
+interface KeyStoreMaps {
+  [propName: string]: SKey[];
+}
+
+const arrowKeys = 'right,up,left,down'.split(',')
+const specialKeys = 'alt,ctrl,shift,meta'.split(',')
+const settingMaps: KeyStoreMaps = {}
+const listenerMaps: KeyStoreMaps = {}
+const disabledMaps: KeyStoreMaps = {}
 
 export class SKey {
   realKey: string;
@@ -74,7 +72,7 @@ function isTriggerPage (params: InterceptorKeydownParams): boolean {
 }
 
 function handleChangePage (func: string) {
-  return function (params: InterceptorKeydownParams, evnt: any): any {
+  return function (params: InterceptorKeydownParams, evnt: any) {
     const { $grid, $table } = params
     const { mouseConfig = {} } = $table
     if ($grid && mouseConfig.selected !== true && ['input', 'textarea'].indexOf(evnt.target.tagName.toLowerCase()) === -1 && isTriggerPage(params)) {
@@ -88,7 +86,7 @@ function handleChangePage (func: string) {
 }
 
 function handleCellMove (arrowIndex: number) {
-  return function (params: InterceptorKeydownParams, evnt: any): any {
+  return function (params: InterceptorKeydownParams, evnt: any) {
     const $table: any = params.$table
     const selected = $table.getSelectedCell()
     const arrows: number[] = [0, 0, 0, 0]
@@ -101,7 +99,7 @@ function handleCellMove (arrowIndex: number) {
 }
 
 function handleCurrentRowMove (isDown: boolean) {
-  return function (params: InterceptorKeydownParams, evnt: any): any {
+  return function (params: InterceptorKeydownParams, evnt: any) {
     const $table: any = params.$table
     if ($table.highlightCurrentRow) {
       const currentRow = $table.getCurrentRecord()
@@ -117,7 +115,7 @@ function handleCurrentRowMove (isDown: boolean) {
  * 快捷键处理方法
  */
 export const handleFuncs = {
-  [FUNC_NANE.TABLE_EDIT_ACTIVED] (params: InterceptorKeydownParams, evnt: any): any {
+  [FUNC_NANE.TABLE_EDIT_ACTIVED] (params: InterceptorKeydownParams, evnt: any) {
     const { $table } = params
     const selected = $table.getSelectedCell()
     if (selected) {
@@ -126,7 +124,7 @@ export const handleFuncs = {
       return false
     }
   },
-  [FUNC_NANE.TABLE_EDIT_CLOSED] (params: InterceptorKeydownParams, evnt: any): any {
+  [FUNC_NANE.TABLE_EDIT_CLOSED] (params: InterceptorKeydownParams, evnt: any) {
     const { $table } = params
     const { mouseConfig = {} } = $table
     const actived = $table.getActiveRecord()
@@ -174,10 +172,10 @@ interface parseKeyRest {
 }
 
 function parseKeys (key: string): parseKeyRest {
-  let specialKey: string = ''
-  let realKey: string = ''
-  let keys: string[] = key.split('+')
-  keys.forEach((item: string) => {
+  let specialKey = ''
+  let realKey = ''
+  let keys = key.split('+')
+  keys.forEach((item) => {
     item = item.toLowerCase().trim()
     if (specialKeys.indexOf(item) > -1) {
       specialKey = item
@@ -197,7 +195,7 @@ function setKeyQueue (maps: KeyStoreMaps, kConf: ShortcutKeyConf, funcName?: FUN
   if (!skeyList) {
     skeyList = maps[realKey] = []
   }
-  if (skeyList.some((skey: SKey) => skey.realKey === realKey && skey.specialKey === specialKey)) {
+  if (skeyList.some((skey) => skey.realKey === realKey && skey.specialKey === specialKey)) {
     throw new Error(`[vxe-table-plugin-shortcut-key] Shortcut key conflict '${kConf.key}'.`)
   }
   skeyList.push(new SKey(realKey, specialKey, funcName, kConf))
