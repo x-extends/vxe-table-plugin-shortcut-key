@@ -5,6 +5,8 @@ import { VXETable, InterceptorKeydownParams } from 'vxe-table/lib/vxe-table'
 export const enum FUNC_NANE {
   TABLE_EDIT_ACTIVED = 'table.edit.actived',
   TABLE_EDIT_CLOSED = 'table.edit.closed',
+  TABLE_EDIT_RIGHTTABMOVE = 'table.edit.rightTabMove',
+  TABLE_EDIT_LEFTTABMOVE = 'table.edit.leftTabMove',
   TABLE_CELL_LEFTMOVE = 'table.cell.leftMove',
   TABLE_CELL_UPMOVE = 'table.cell.upMove',
   TABLE_CELL_RIGHTMOVE = 'table.cell.rightMove',
@@ -85,15 +87,26 @@ function handleChangePage (func: string) {
   }
 }
 
+function handleCellTabMove (isLeft: boolean) {
+  return function (params: any, evnt: any): any {
+    const { $table } = params
+    const activeParams = $table.getActiveRecord()
+    const selecteParams = $table.getSelectedCell()
+    if (selecteParams || activeParams) {
+      $table.moveTabSelected(selecteParams || activeParams, isLeft, evnt)
+    }
+    return false
+  }
+}
+
 function handleCellMove (arrowIndex: number) {
   return function (params: InterceptorKeydownParams, evnt: any) {
     const $table: any = params.$table
-    const selected = $table.getSelectedCell()
-    const actived = $table.getActiveRecord()
+    const selecteParams = $table.getSelectedCell()
     const arrows: number[] = [0, 0, 0, 0]
     arrows[arrowIndex] = 1
-    if (selected.row || actived.row) {
-      $table.moveSelected(selected.row ? selected.args : actived.args, arrows[0], arrows[1], arrows[2], arrows[3], evnt)
+    if (selecteParams) {
+      $table.moveSelected(selecteParams, arrows[0], arrows[1], arrows[2], arrows[3], evnt)
       return false
     }
   }
@@ -138,6 +151,8 @@ export const handleFuncs = {
       return false
     }
   },
+  [FUNC_NANE.TABLE_EDIT_RIGHTTABMOVE]: handleCellTabMove(false),
+  [FUNC_NANE.TABLE_EDIT_LEFTTABMOVE]: handleCellTabMove(true),
   [FUNC_NANE.TABLE_CELL_LEFTMOVE]: handleCellMove(0),
   [FUNC_NANE.TABLE_CELL_UPMOVE]: handleCellMove(1),
   [FUNC_NANE.TABLE_CELL_RIGHTMOVE]: handleCellMove(2),

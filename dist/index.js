@@ -106,16 +106,29 @@
     };
   }
 
+  function handleCellTabMove(isLeft) {
+    return function (params, evnt) {
+      var $table = params.$table;
+      var activeParams = $table.getActiveRecord();
+      var selecteParams = $table.getSelectedCell();
+
+      if (selecteParams || activeParams) {
+        $table.moveTabSelected(selecteParams || activeParams, isLeft, evnt);
+      }
+
+      return false;
+    };
+  }
+
   function handleCellMove(arrowIndex) {
     return function (params, evnt) {
       var $table = params.$table;
-      var selected = $table.getSelectedCell();
-      var actived = $table.getActiveRecord();
+      var selecteParams = $table.getSelectedCell();
       var arrows = [0, 0, 0, 0];
       arrows[arrowIndex] = 1;
 
-      if (selected.row || actived.row) {
-        $table.moveSelected(selected.row ? selected.args : actived.args, arrows[0], arrows[1], arrows[2], arrows[3], evnt);
+      if (selecteParams) {
+        $table.moveSelected(selecteParams, arrows[0], arrows[1], arrows[2], arrows[3], evnt);
         return false;
       }
     };
@@ -171,7 +184,11 @@
 
       return false;
     }
-  }), _defineProperty(_handleFuncs, "table.cell.leftMove"
+  }), _defineProperty(_handleFuncs, "table.edit.rightTabMove"
+  /* TABLE_EDIT_RIGHTTABMOVE */
+  , handleCellTabMove(false)), _defineProperty(_handleFuncs, "table.edit.leftTabMove"
+  /* TABLE_EDIT_LEFTTABMOVE */
+  , handleCellTabMove(true)), _defineProperty(_handleFuncs, "table.cell.leftMove"
   /* TABLE_CELL_LEFTMOVE */
   , handleCellMove(0)), _defineProperty(_handleFuncs, "table.cell.upMove"
   /* TABLE_CELL_UPMOVE */
