@@ -53,7 +53,7 @@
       ,
       value: function trigger(params, evnt) {
         if (!this.specialKey || evnt["".concat(this.specialKey, "Key")]) {
-          if (this.funcName) {
+          if (this.funcName && handleFuncs[this.funcName]) {
             return handleFuncs[this.funcName](params, evnt);
           }
         }
@@ -64,7 +64,7 @@
       ,
       value: function emit(params, evnt) {
         if (!this.specialKey || evnt["".concat(this.specialKey, "Key")]) {
-          if (this.kConf) {
+          if (this.kConf && this.kConf.callback) {
             return this.kConf.callback(params, evnt);
           }
         }
@@ -303,7 +303,7 @@
       } : opts;
 
       if (!handleFuncs[funcName]) {
-        console.warn("[vxe-table-plugin-shortcut-key] '".concat(funcName, "' not exist."));
+        console.error("[vxe-table-plugin-shortcut-key] '".concat(funcName, "' not exist."));
       }
 
       setKeyQueue(settingMaps, kConf, funcName);
@@ -313,7 +313,7 @@
   function parseListenerKey(options) {
     _xeUtils["default"].each(options.listener, function (callback, key) {
       if (!_xeUtils["default"].isFunction(callback)) {
-        console.warn("[vxe-table-plugin-shortcut-key] '".concat(key, "' requires the callback function to be set."));
+        console.error("[vxe-table-plugin-shortcut-key] '".concat(key, "' requires the callback function to be set."));
       }
 
       setKeyQueue(listenerMaps, {
