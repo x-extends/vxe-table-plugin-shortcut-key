@@ -320,7 +320,7 @@ function setup (options: ShortcutKeyOptions) {
 }
 
 /**
- * 基于 vxe-table 表格的增强插件，为键盘操作提供快捷键的设置
+ * 基于 vxe-table 表格的增强插件，为键盘操作提供快捷键设置
  */
 export const VXETablePluginShortcutKey = {
   setup,

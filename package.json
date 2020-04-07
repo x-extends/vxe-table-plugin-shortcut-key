@@ -1,7 +1,7 @@
 {
   "name": "vxe-table-plugin-shortcut-key",
-  "version": "1.2.4",
-  "description": "基于 vxe-table 表格的增强插件，为键盘操作提供快捷键的设置",
+  "version": "1.2.6",
+  "description": "基于 vxe-table 表格的增强插件，为键盘操作提供快捷键设置",
   "scripts": {
     "lib": "gulp build"
   },
@@ -48,11 +48,11 @@
     "prettier": "^1.18.2",
     "typescript": "^3.6.3",
     "vue": "^2.6.11",
-    "vxe-table": "^2.8.33",
-    "xe-utils": "^2.4.2"
+    "vxe-table": "^2.9.0",
+    "xe-utils": "^2.4.4"
   },
   "peerDependencies": {
-    "vxe-table": ">=2.8.0",
+    "vxe-table": ">=2.9.0",
     "xe-utils": ">=2.4.0"
   },
   "repository": {
