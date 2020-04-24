@@ -15,12 +15,10 @@ npm install xe-utils vxe-table vxe-table-plugin-shortcut-key
 ```
 
 ```javascript
-import Vue from 'vue'
-import VXETable from 'vxe-table'
+// ...
 import VXETablePluginShortcutKey from 'vxe-table-plugin-shortcut-key'
-import 'vxe-table/lib/index.css'
+// ...
 
-Vue.use(VXETable)
 VXETable.use(VXETablePluginShortcutKey, {
   // 快捷键监听
   listener: {
