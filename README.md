@@ -40,15 +40,15 @@ VXETable.use(VXETablePluginShortcutKey, {
 
 ### disabled 禁用快捷键
 
-disabled: Array\<string\>  
+disabled: string[]
 
 ### listener 快捷键监听
 
-listener: object\<string, Function(params, event)\>  
+listener: { key: Function(params, event) }
 
 ### setting 功能键设置
 
-setting: object\<string, string\>  
+setting: { code: string }
 
 | code 功能编码 | describe 描述 | default 参考键值 |
 |------|------|------|
