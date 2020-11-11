@@ -1,6 +1,7 @@
 /* eslint-disable no-unused-vars */
+import { ComponentPublicInstance } from 'vue'
 import XEUtils from 'xe-utils/ctor'
-import { VXETable, InterceptorKeydownParams } from 'vxe-table/lib/vxe-table'
+import { VXETableInstance, VxeGlobalInterceptorHandles, VxePagerPrivateMethods, VxePagerConstructor, VxePagerProps, VxeTableConstructor, VxeTablePrivateMethods } from 'vxe-table/lib/vxe-table'
 
 /**
  * 功能键
@@ -70,15 +71,10 @@ export const enum SKEY_NANE {
 }
 /* eslint-enable no-unused-vars */
 
-interface KeyStoreMaps {
-  [propName: string]: SKey[];
+export interface ShortcutKeyConf {
+  key: string;
+  callback: Function
 }
-
-const arrowKeys = 'right,up,left,down'.split(',')
-const specialKeys = 'alt,ctrl,shift,meta'.split(',')
-const settingMaps: KeyStoreMaps = {}
-const listenerMaps: KeyStoreMaps = {}
-const disabledMaps: KeyStoreMaps = {}
 
 export class SKey {
   realKey: string;
@@ -91,14 +87,16 @@ export class SKey {
     this.funcName = funcName
     this.kConf = kConf
   }
-  [SKEY_NANE.TRIGGER] (params: InterceptorKeydownParams, evnt: any) {
+
+  [SKEY_NANE.TRIGGER] (params: VxeGlobalInterceptorHandles.InterceptorKeydownParams, evnt: any) {
     if (!this.specialKey || evnt[`${this.specialKey}Key`]) {
       if (this.funcName && handleFuncs[this.funcName]) {
         return handleFuncs[this.funcName](params, evnt)
       }
     }
   }
-  [SKEY_NANE.EMIT] (params: InterceptorKeydownParams, evnt: any) {
+
+  [SKEY_NANE.EMIT] (params: VxeGlobalInterceptorHandles.InterceptorKeydownParams, evnt: any) {
     if (!this.specialKey || evnt[`${this.specialKey}Key`]) {
       if (this.kConf && this.kConf.callback) {
         return this.kConf.callback(params, evnt)
@@ -107,6 +105,30 @@ export class SKey {
   }
 }
 
+interface KeyStoreMaps {
+  [propName: string]: SKey[];
+}
+
+export interface ShortcutKeySettingConfig {
+  [funcName: string]: string;
+}
+
+export interface ShortcutKeyListenerConfig {
+  [funcName: string]: (params: VxeGlobalInterceptorHandles.InterceptorKeydownParams, evnt: Event) => any;
+}
+
+export interface ShortcutKeyOptions {
+  disabled?: string[] | ShortcutKeyConf[];
+  listener?: ShortcutKeyListenerConfig;
+  setting?: ShortcutKeySettingConfig;
+}
+
+const arrowKeys = 'right,up,left,down'.split(',')
+const specialKeys = 'alt,ctrl,shift,meta'.split(',')
+const settingMaps: KeyStoreMaps = {}
+const listenerMaps: KeyStoreMaps = {}
+const disabledMaps: KeyStoreMaps = {}
+
 function getEventKey (key: string): string {
   if (arrowKeys.indexOf(key.toLowerCase()) > -1) {
     return `Arrow${key}`
@@ -114,26 +136,31 @@ function getEventKey (key: string): string {
   return key
 }
 
-function isTriggerPage (params: InterceptorKeydownParams): boolean {
+function isTriggerPage (params: VxeGlobalInterceptorHandles.InterceptorKeydownParams): boolean {
   return !params.$table.getActiveRecord()
 }
 
-function handleChangePage (func: string) {
-  return function (params: InterceptorKeydownParams, evnt: any) {
+function handleChangePage (func: 'handlePrevPage' | 'handleNextPage' | 'handlePrevJump' | 'handleNextJump') {
+  return function (params: VxeGlobalInterceptorHandles.InterceptorKeydownParams, evnt: KeyboardEvent & { target: HTMLElement }) {
     const { $grid, $table } = params
-    const { mouseConfig = {} } = $table
-    if ($grid && mouseConfig.selected !== true && ['input', 'textarea'].indexOf(evnt.target.tagName.toLowerCase()) === -1 && isTriggerPage(params)) {
-      const pager: any = $grid.$refs.pager
-      if (pager) {
+    const { props: tableProps, computeMaps: tableComputeMaps } = $table
+    const { mouseConfig } = tableProps
+    const { computeMouseOpts } = tableComputeMaps
+    const mouseOpts = computeMouseOpts.value
+    if ($grid && mouseConfig && mouseOpts.selected !== true && ['input', 'textarea'].indexOf(evnt.target.tagName.toLowerCase()) === -1 && isTriggerPage(params)) {
+      const { refMaps: gridRefMaps } = $grid
+      const { refPager } = gridRefMaps
+      const $pager = refPager.value as ComponentPublicInstance<VxePagerProps, VxePagerConstructor & VxePagerPrivateMethods>
+      if ($pager) {
         evnt.preventDefault()
-        pager[func](evnt)
+        $pager[func](evnt)
       }
     }
   }
 }
 
 function handleCellTabMove (isLeft: boolean) {
-  return function (params: any, evnt: any): any {
+  return function (params: VxeGlobalInterceptorHandles.InterceptorKeydownParams, evnt: Event) {
     const { $table } = params
     const activeParams = $table.getActiveRecord()
     const selecteParams = $table.getSelectedCell()
@@ -145,8 +172,8 @@ function handleCellTabMove (isLeft: boolean) {
 }
 
 function handleCellMove (arrowIndex: number) {
-  return function (params: InterceptorKeydownParams, evnt: any) {
-    const $table: any = params.$table
+  return function (params: VxeGlobalInterceptorHandles.InterceptorKeydownParams, evnt: Event) {
+    const { $table } = params
     const selecteParams = $table.getSelectedCell()
     const arrows: number[] = [0, 0, 0, 0]
     arrows[arrowIndex] = 1
@@ -158,9 +185,11 @@ function handleCellMove (arrowIndex: number) {
 }
 
 function handleCurrentRowMove (isDown: boolean) {
-  return function (params: InterceptorKeydownParams, evnt: any) {
-    const $table: any = params.$table
-    if ($table.highlightCurrentRow) {
+  return function (params: VxeGlobalInterceptorHandles.InterceptorKeydownParams, evnt: Event) {
+    const { $table } = params
+    const { props: tableProps } = $table
+    const { highlightCurrentRow } = tableProps
+    if (highlightCurrentRow) {
       const currentRow = $table.getCurrentRecord()
       if (currentRow) {
         $table.moveCurrentRow(!isDown, isDown, evnt)
@@ -174,7 +203,7 @@ function handleCurrentRowMove (isDown: boolean) {
  * 快捷键处理方法
  */
 export const handleFuncs = {
-  [FUNC_NANE.TABLE_EDIT_ACTIVED] (params: InterceptorKeydownParams, evnt: any) {
+  [FUNC_NANE.TABLE_EDIT_ACTIVED] (params: VxeGlobalInterceptorHandles.InterceptorKeydownParams, evnt: Event) {
     const { $table } = params
     const selected = $table.getSelectedCell()
     if (selected) {
@@ -183,17 +212,22 @@ export const handleFuncs = {
       return false
     }
   },
-  [FUNC_NANE.TABLE_EDIT_CLOSED] (params: InterceptorKeydownParams, evnt: any) {
+  [FUNC_NANE.TABLE_EDIT_CLOSED] (params: VxeGlobalInterceptorHandles.InterceptorKeydownParams, evnt: Event) {
     const { $table } = params
-    const { mouseConfig = {} } = $table
-    const actived = $table.getActiveRecord()
-    if (actived) {
-      evnt.preventDefault()
-      $table.clearActived()
-      if (mouseConfig.selected) {
-        $table.$nextTick(() => $table.setSelectCell(actived.row, actived.column.property))
+    const { props, computeMaps } = $table
+    const { mouseConfig, editConfig } = props
+    const { computeMouseOpts } = computeMaps
+    const mouseOpts = computeMouseOpts.value
+    if (editConfig) {
+      const actived = $table.getActiveRecord()
+      if (actived) {
+        evnt.preventDefault()
+        const cleatRest = $table.clearActived()
+        if (mouseConfig && mouseOpts.selected) {
+          cleatRest.then(() => $table.setSelectCell(actived.row, actived.column.property))
+        }
+        return false
       }
-      return false
     }
   },
   [FUNC_NANE.TABLE_EDIT_RIGHTTABMOVE]: handleCellTabMove(false),
@@ -204,21 +238,21 @@ export const handleFuncs = {
   [FUNC_NANE.TABLE_CELL_DOWNMOVE]: handleCellMove(3),
   [FUNC_NANE.TABLE_ROW_CURRENT_TOPMOVE]: handleCurrentRowMove(false),
   [FUNC_NANE.TABLE_ROW_CURRENT_DOWNMOVE]: handleCurrentRowMove(true),
-  [FUNC_NANE.PAGER_PREVPAGE]: handleChangePage('prevPage'),
-  [FUNC_NANE.PAGER_NEXTPAGE]: handleChangePage('nextPage'),
-  [FUNC_NANE.PAGER_PREVJUMP]: handleChangePage('prevJump'),
-  [FUNC_NANE.PAGER_NEXTJUMP]: handleChangePage('nextJump')
+  [FUNC_NANE.PAGER_PREVPAGE]: handleChangePage('handlePrevPage'),
+  [FUNC_NANE.PAGER_NEXTPAGE]: handleChangePage('handleNextPage'),
+  [FUNC_NANE.PAGER_PREVJUMP]: handleChangePage('handlePrevJump'),
+  [FUNC_NANE.PAGER_NEXTJUMP]: handleChangePage('handleNextJump')
 }
 
-function runEvent (key: string, maps: any, prop: SKEY_NANE, params: InterceptorKeydownParams, evnt: any) {
-  let skeyList: SKey[] = maps[key.toLowerCase()]
+function runEvent (key: string, maps: any, prop: SKEY_NANE, params: VxeGlobalInterceptorHandles.InterceptorKeydownParams, evnt: Event) {
+  const skeyList: SKey[] = maps[key.toLowerCase()]
   if (skeyList) {
     return !skeyList.some((skey: SKey) => skey[prop](params, evnt) === false)
   }
 }
 
-function handleShortcutKeyEvent (params: InterceptorKeydownParams, evnt: any) {
-  let key: string = getEventKey(evnt.key)
+function handleShortcutKeyEvent (params: VxeGlobalInterceptorHandles.InterceptorKeydownParams, evnt: KeyboardEvent) {
+  const key: string = getEventKey(evnt.key)
   if (!runEvent(key, disabledMaps, SKEY_NANE.EMIT, params, evnt)) {
     if (runEvent(key, settingMaps, SKEY_NANE.TRIGGER, params, evnt) === false) {
       return false
@@ -235,7 +269,7 @@ interface parseKeyRest {
 function parseKeys (key: string): parseKeyRest {
   let specialKey = ''
   let realKey = ''
-  let keys = key.split('+')
+  const keys = key.split('+')
   keys.forEach((item) => {
     item = item.toLowerCase().trim()
     if (specialKeys.indexOf(item) > -1) {
@@ -251,7 +285,7 @@ function parseKeys (key: string): parseKeyRest {
 }
 
 function setKeyQueue (maps: KeyStoreMaps, kConf: ShortcutKeyConf, funcName?: FUNC_NANE) {
-  let { realKey, specialKey } = parseKeys(kConf.key)
+  const { realKey, specialKey } = parseKeys(kConf.key)
   let skeyList: SKey[] = maps[realKey]
   if (!skeyList) {
     skeyList = maps[realKey] = []
@@ -264,14 +298,14 @@ function setKeyQueue (maps: KeyStoreMaps, kConf: ShortcutKeyConf, funcName?: FUN
 
 function parseDisabledKey (options: ShortcutKeyOptions) {
   XEUtils.each(options.disabled, (conf: string | ShortcutKeyConf) => {
-    let opts: any = XEUtils.isString(conf) ? { key: conf } : conf
+    const opts = XEUtils.isString(conf) ? { key: conf } : conf
     setKeyQueue(disabledMaps, XEUtils.assign({ callback: () => false }, opts))
   })
 }
 
 function parseSettingKey (options: ShortcutKeyOptions) {
   XEUtils.each(options.setting, (opts: string | ShortcutKeySettingConfig, funcName: FUNC_NANE) => {
-    let kConf: any = XEUtils.isString(opts) ? { key: opts } : opts
+    const kConf: any = XEUtils.isString(opts) ? { key: opts } : opts
     if (!handleFuncs[funcName]) {
       console.error(`[vxe-table-plugin-shortcut-key] '${funcName}' not exist.`)
     }
@@ -286,25 +320,6 @@ function parseListenerKey (options: ShortcutKeyOptions) {
     }
     setKeyQueue(listenerMaps, { key, callback })
   })
-}
-
-export interface ShortcutKeyConf {
-  key: string;
-  callback: Function
-}
-
-export interface ShortcutKeyListenerConfig {
-  [funcName: string]: (params: InterceptorKeydownParams, evnt: any) => any;
-}
-
-export interface ShortcutKeySettingConfig {
-  [funcName: string]: string;
-}
-
-export interface ShortcutKeyOptions {
-  disabled?: string[] | ShortcutKeyConf[];
-  listener?: ShortcutKeyListenerConfig;
-  setting?: ShortcutKeySettingConfig;
 }
 
 /**
@@ -324,7 +339,7 @@ function setup (options: ShortcutKeyOptions) {
  */
 export const VXETablePluginShortcutKey = {
   setup,
-  install (xtable: typeof VXETable, options?: ShortcutKeyOptions) {
+  install (xtable: VXETableInstance, options?: ShortcutKeyOptions) {
     if (options) {
       setup(options)
     }
