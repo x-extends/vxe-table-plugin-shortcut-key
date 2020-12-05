@@ -217,7 +217,8 @@ function runEvent (key: string, maps: any, prop: SKEY_NANE, params: InterceptorK
   }
 }
 
-function handleShortcutKeyEvent (params: InterceptorKeydownParams, evnt: any) {
+function handleShortcutKeyEvent (params: InterceptorKeydownParams, e: any) {
+  const evnt = params.$event || e
   let key: string = getEventKey(evnt.key)
   if (!runEvent(key, disabledMaps, SKEY_NANE.EMIT, params, evnt)) {
     if (runEvent(key, settingMaps, SKEY_NANE.TRIGGER, params, evnt) === false) {
