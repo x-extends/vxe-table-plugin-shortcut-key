@@ -49,22 +49,24 @@ listener: { key: Function(params, event) }
 
 setting: { code: string }
 
-| code 功能编码 | describe 描述 | default 参考键值 |
+| code 功能编码 | describe 描述 | key 参考键值 |
 |------|------|------|
 | table.edit.actived | 只对 edit-config 启用后有效，当单元格处于选中状态时，则进入编辑 | F2 |
 | table.edit.closed | 只对 edit-config 启用后有效，当单元格处于激活状态时，则退出编辑 | Esc |
-| table.edit.leftTabMove | 只对 edit-config / mouse-config 启用后有效，当单元格处于激活状态或者选中状态，则移动到左侧单元格 | Shift + Tab |
-| table.edit.rightTabMove | 只对 edit-config / mouse-config 启用后有效，当单元格处于激活状态或者选中状态，则移动到右侧单元格 | Tab |
-| table.cell.upMove | 只对 mouse-config 启用后有效，当单元格处于选中状态，则移动到上面的单元格 | ArrowUp |
-| table.cell.downMove | 只对 mouse-config 启用后有效，当单元格处于选中状态，则移动到下面的单元格 | ArrowDown |
-| table.cell.leftMove | 只对 mouse-config 启用后有效，当单元格处于选中状态，则移动到左边的单元格 | ArrowLeft |
-| table.cell.rightMove | 只对 mouse-config 启用后有效，当单元格处于选中状态，则移动到右边的单元格 | ArrowRight |
+| table.edit.tab.leftMove | 只对 edit-config.mode=cell / mouse-config.selected 启用后有效，当单元格处于激活状态或者选中状态，则移动到左侧单元格 | Shift + Tab |
+| table.edit.tab.rightMove | 只对 edit-config.mode=cell / mouse-config.selected 启用后有效，当单元格处于激活状态或者选中状态，则移动到右侧单元格 | Tab |
+| table.edit.enter.upMove | 只对 edit-config.mode=cell / mouse-config.selected 启用后有效，当单元格处于激活状态或者选中状态，则移动到上面单元格 | Shift + Enter |
+| table.edit.enter.downMove | 只对 edit-config.mode=cell / mouse-config.selected 启用后有效，当单元格处于激活状态或者选中状态，则移动到下面单元格 | Enter |
+| table.cell.upMove | 只对 mouse-config.selected 启用后有效，当单元格处于选中状态，则移动到上面的单元格 | ArrowUp |
+| table.cell.downMove | 只对 mouse-config.selected 启用后有效，当单元格处于选中状态，则移动到下面的单元格 | ArrowDown |
+| table.cell.leftMove | 只对 mouse-config.selected 启用后有效，当单元格处于选中状态，则移动到左边的单元格 | ArrowLeft |
+| table.cell.rightMove | 只对 mouse-config.selected 启用后有效，当单元格处于选中状态，则移动到右边的单元格 | ArrowRight |
 | table.row.current.topMove | 只对 highlight-current-row 启用后有效，高亮行向上移动 |  |
 | table.row.current.downMove | 只对 highlight-current-row 启用后有效，高亮行向上移动 |  |
-| pager.prevPage | 只对 pager-config 启用后有效，则进入上一页 |  |
-| pager.nextPage | 只对 pager-config 启用后有效，则进入下一页 |  |
-| pager.prevJump | 只对 pager-config 启用后有效，则向上翻页 |  |
-| pager.nextJump | 只对 pager-config 启用后有效，则向下翻页 |  |
+| pager.prevPage | 只对 grid.pager-config 启用后有效，则进入上一页 |  |
+| pager.nextPage | 只对 grid.pager-config 启用后有效，则进入下一页 |  |
+| pager.prevJump | 只对 grid.pager-config 启用后有效，则向上翻页 |  |
+| pager.nextJump | 只对 grid.pager-config 启用后有效，则向下翻页 |  |
 
 ## License
 
