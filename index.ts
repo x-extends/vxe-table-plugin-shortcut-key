@@ -17,51 +17,59 @@ export const enum FUNC_NANE {
   /**
    * 只对 edit-config / mouse-config 启用后有效，当单元格处于激活状态或者选中状态，则移动到左侧单元格
    */
-  TABLE_EDIT_LEFTTABMOVE = 'table.edit.leftTabMove',
+  TABLE_EDIT_TAB_LEFT_MOVE = 'table.edit.tab.leftMove',
   /**
    * 只对 edit-config / mouse-config 启用后有效，当单元格处于激活状态或者选中状态，则移动到右侧单元格
    */
-  TABLE_EDIT_RIGHTTABMOVE = 'table.edit.rightTabMove',
+  TABLE_EDIT_TAB_RIGHT_MOVE = 'table.edit.tab.rightMove',
+  /**
+   * 只对 edit-config / mouse-config 启用后有效，当单元格处于激活状态或者选中状态，则移动到上面单元格
+   */
+  TABLE_EDIT_ENTER_UP_MOVE = 'table.edit.enter.upMove',
+  /**
+   * 只对 edit-config / mouse-config 启用后有效，当单元格处于激活状态或者选中状态，则移动到下面单元格
+   */
+  TABLE_EDIT_ENTER_DOWN_MOVE = 'table.edit.enter.downMove',
   /**
    * 只对 mouse-config 启用后有效，当单元格处于选中状态，则移动到左边的单元格
    */
-  TABLE_CELL_LEFTMOVE = 'table.cell.leftMove',
+  TABLE_CELL_LEFT_MOVE = 'table.cell.leftMove',
   /**
    * 只对 mouse-config 启用后有效，当单元格处于选中状态，则移动到上面的单元格
    */
-  TABLE_CELL_UPMOVE = 'table.cell.upMove',
+  TABLE_CELL_UP_MOVE = 'table.cell.upMove',
   /**
    * 只对 mouse-config 启用后有效，当单元格处于选中状态，则移动到右边的单元格
    */
-  TABLE_CELL_RIGHTMOVE = 'table.cell.rightMove',
+  TABLE_CELL_RIGHT_MOVE = 'table.cell.rightMove',
   /**
    * 只对 mouse-config 启用后有效，当单元格处于选中状态，则移动到下面的单元格
    */
-  TABLE_CELL_DOWNMOVE = 'table.cell.downMove',
+  TABLE_CELL_DOWN_MOVE = 'table.cell.downMove',
   /**
    * 只对 highlight-current-row 启用后有效，高亮行向上移动
    */
-  TABLE_ROW_CURRENT_TOPMOVE = 'table.row.current.topMove',
+  TABLE_ROW_CURRENT_TOP_MOVE = 'table.row.current.topMove',
   /**
    * 只对 highlight-current-row 启用后有效，高亮行向上移动
    */
-  TABLE_ROW_CURRENT_DOWNMOVE = 'table.row.current.downMove',
+  TABLE_ROW_CURRENT_DOWN_MOVE = 'table.row.current.downMove',
   /**
    * 只对 pager-config 启用后有效，则进入上一页
    */
-  PAGER_PREVPAGE = 'pager.prevPage',
+  PAGER_PREV_PAGE = 'pager.prevPage',
   /**
    * 只对 pager-config 启用后有效，则进入下一页
    */
-  PAGER_NEXTPAGE = 'pager.nextPage',
+  PAGER_NEXT_PAGE = 'pager.nextPage',
   /**
    * 只对 pager-config 启用后有效，则向上翻页
    */
-  PAGER_PREVJUMP = 'pager.prevJump',
+  PAGER_PREV_JUMP = 'pager.prevJump',
   /**
    * 只对 pager-config 启用后有效，则向下翻页
    */
-  PAGER_NEXTJUMP = 'pager.nextJump'
+  PAGER_NEXT_JUMP = 'pager.nextJump'
 }
 
 export const enum SKEY_NANE {
@@ -135,10 +143,20 @@ function handleChangePage (func: string) {
 function handleCellTabMove (isLeft: boolean) {
   return function (params: any, evnt: any): any {
     const { $table } = params
-    const activeParams = $table.getActiveRecord()
-    const selecteParams = $table.getSelectedCell()
-    if (selecteParams || activeParams) {
-      $table.moveTabSelected(selecteParams || activeParams, isLeft, evnt)
+    const targetParams = $table.getActiveRecord() || $table.getSelectedCell()
+    if (targetParams) {
+      $table.moveTabSelected(targetParams, isLeft, evnt)
+    }
+    return false
+  }
+}
+
+function handleCellEnterMove (isTop: boolean) {
+  return function (params: any, evnt: any): any {
+    const { $table } = params
+    const targetParams = $table.getActiveRecord() || $table.getSelectedCell()
+    if (targetParams) {
+      $table.moveSelected(targetParams, false, !isTop, false, isTop, evnt)
     }
     return false
   }
@@ -196,18 +214,20 @@ export const handleFuncs = {
       return false
     }
   },
-  [FUNC_NANE.TABLE_EDIT_RIGHTTABMOVE]: handleCellTabMove(false),
-  [FUNC_NANE.TABLE_EDIT_LEFTTABMOVE]: handleCellTabMove(true),
-  [FUNC_NANE.TABLE_CELL_LEFTMOVE]: handleCellMove(0),
-  [FUNC_NANE.TABLE_CELL_UPMOVE]: handleCellMove(1),
-  [FUNC_NANE.TABLE_CELL_RIGHTMOVE]: handleCellMove(2),
-  [FUNC_NANE.TABLE_CELL_DOWNMOVE]: handleCellMove(3),
-  [FUNC_NANE.TABLE_ROW_CURRENT_TOPMOVE]: handleCurrentRowMove(false),
-  [FUNC_NANE.TABLE_ROW_CURRENT_DOWNMOVE]: handleCurrentRowMove(true),
-  [FUNC_NANE.PAGER_PREVPAGE]: handleChangePage('prevPage'),
-  [FUNC_NANE.PAGER_NEXTPAGE]: handleChangePage('nextPage'),
-  [FUNC_NANE.PAGER_PREVJUMP]: handleChangePage('prevJump'),
-  [FUNC_NANE.PAGER_NEXTJUMP]: handleChangePage('nextJump')
+  [FUNC_NANE.TABLE_EDIT_TAB_RIGHT_MOVE]: handleCellTabMove(false),
+  [FUNC_NANE.TABLE_EDIT_TAB_LEFT_MOVE]: handleCellTabMove(true),
+  [FUNC_NANE.TABLE_EDIT_ENTER_UP_MOVE]: handleCellEnterMove(false),
+  [FUNC_NANE.TABLE_EDIT_ENTER_DOWN_MOVE]: handleCellEnterMove(true),
+  [FUNC_NANE.TABLE_CELL_LEFT_MOVE]: handleCellMove(0),
+  [FUNC_NANE.TABLE_CELL_UP_MOVE]: handleCellMove(1),
+  [FUNC_NANE.TABLE_CELL_RIGHT_MOVE]: handleCellMove(2),
+  [FUNC_NANE.TABLE_CELL_DOWN_MOVE]: handleCellMove(3),
+  [FUNC_NANE.TABLE_ROW_CURRENT_TOP_MOVE]: handleCurrentRowMove(false),
+  [FUNC_NANE.TABLE_ROW_CURRENT_DOWN_MOVE]: handleCurrentRowMove(true),
+  [FUNC_NANE.PAGER_PREV_PAGE]: handleChangePage('prevPage'),
+  [FUNC_NANE.PAGER_NEXT_PAGE]: handleChangePage('nextPage'),
+  [FUNC_NANE.PAGER_PREV_JUMP]: handleChangePage('prevJump'),
+  [FUNC_NANE.PAGER_NEXT_JUMP]: handleChangePage('nextJump')
 }
 
 function runEvent (key: string, maps: any, prop: SKEY_NANE, params: InterceptorKeydownParams, evnt: any) {
