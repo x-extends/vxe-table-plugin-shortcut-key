@@ -10,11 +10,12 @@
 ## Installing
 
 ```shell
-npm install xe-utils vxe-table vxe-table-plugin-shortcut-key
+npm install xe-utils vxe-table@next vxe-table-plugin-shortcut-key@next
 ```
 
 ```javascript
 // ...
+import VXETable from 'vxe-table'
 import VXETablePluginShortcutKey from 'vxe-table-plugin-shortcut-key'
 // ...
 

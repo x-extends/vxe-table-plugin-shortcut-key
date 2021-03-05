@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import { ComponentPublicInstance } from 'vue'
 import XEUtils from 'xe-utils/ctor'
-import { VXETableInstance, VxeGlobalInterceptorHandles, VxePagerPrivateMethods, VxePagerConstructor, VxePagerProps, VxeTableConstructor, VxeTablePrivateMethods } from 'vxe-table/lib/vxe-table'
+import { VXETableInstance, VxeGlobalInterceptorHandles, VxePagerPrivateMethods, VxePagerConstructor, VxePagerProps } from 'vxe-table/lib/vxe-table'
 
 /**
  * 功能键
@@ -151,13 +151,12 @@ function isTriggerPage (params: VxeGlobalInterceptorHandles.InterceptorKeydownPa
 function handleChangePage (func: 'handlePrevPage' | 'handleNextPage' | 'handlePrevJump' | 'handleNextJump') {
   return function (params: VxeGlobalInterceptorHandles.InterceptorKeydownParams, evnt: KeyboardEvent & { target: HTMLElement }) {
     const { $grid, $table } = params
-    const { props: tableProps, computeMaps: tableComputeMaps } = $table
+    const { props: tableProps } = $table
     const { mouseConfig } = tableProps
-    const { computeMouseOpts } = tableComputeMaps
+    const { computeMouseOpts } = $table.getComputeMaps()
     const mouseOpts = computeMouseOpts.value
     if ($grid && mouseConfig && mouseOpts.selected !== true && ['input', 'textarea'].indexOf(evnt.target.tagName.toLowerCase()) === -1 && isTriggerPage(params)) {
-      const { refMaps: gridRefMaps } = $grid
-      const { refPager } = gridRefMaps
+      const { refPager } = $grid.getRefMaps()
       const $pager = refPager.value as ComponentPublicInstance<VxePagerProps, VxePagerConstructor & VxePagerPrivateMethods>
       if ($pager) {
         evnt.preventDefault()
@@ -232,9 +231,9 @@ export const handleFuncs = {
   },
   [FUNC_NANE.TABLE_EDIT_CLOSED] (params: VxeGlobalInterceptorHandles.InterceptorKeydownParams, evnt: Event) {
     const { $table } = params
-    const { props, computeMaps } = $table
+    const { props } = $table
     const { mouseConfig, editConfig } = props
-    const { computeMouseOpts } = computeMaps
+    const { computeMouseOpts } = $table.getComputeMaps()
     const mouseOpts = computeMouseOpts.value
     if (editConfig) {
       const actived = $table.getActiveRecord()
@@ -268,17 +267,6 @@ function runEvent (key: string, maps: any, prop: SKEY_NANE, params: VxeGlobalInt
   const skeyList: SKey[] = maps[key.toLowerCase()]
   if (skeyList) {
     return !skeyList.some((skey: SKey) => skey[prop](params, evnt) === false)
-  }
-}
-
-function handleShortcutKeyEvent (params: VxeGlobalInterceptorHandles.InterceptorKeydownParams) {
-  const evnt = params.$event
-  const key: string = getEventKey(evnt.key)
-  if (!runEvent(key, disabledMaps, SKEY_NANE.EMIT, params, evnt)) {
-    if (runEvent(key, settingMaps, SKEY_NANE.TRIGGER, params, evnt) === false) {
-      return false
-    }
-    runEvent(key, listenerMaps, SKEY_NANE.EMIT, params, evnt)
   }
 }
 
@@ -325,9 +313,9 @@ function parseDisabledKey (options: ShortcutKeyOptions) {
 }
 
 function parseSettingKey (options: ShortcutKeyOptions) {
-  XEUtils.each(options.setting, (opts: string | ShortcutKeySettingConfig, funcName: FUNC_NANE) => {
+  XEUtils.each(options.setting, (opts: string | ShortcutKeySettingConfig, funcName: any) => {
     const kConf: any = XEUtils.isString(opts) ? { key: opts } : opts
-    if (!handleFuncs[funcName]) {
+    if (!handleFuncs[funcName as FUNC_NANE]) {
       console.error(`[vxe-table-plugin-shortcut-key] '${funcName}' not exist.`)
     }
     setKeyQueue(settingMaps, kConf, funcName)
@@ -364,7 +352,16 @@ export const VXETablePluginShortcutKey = {
     if (options) {
       setup(options)
     }
-    xtable.interceptor.add('event.keydown', handleShortcutKeyEvent)
+    xtable.interceptor.add('event.keydown', (params) => {
+      const evnt = params.$event as KeyboardEvent
+      const key: string = getEventKey(evnt.key)
+      if (!runEvent(key, disabledMaps, SKEY_NANE.EMIT, params, evnt)) {
+        if (runEvent(key, settingMaps, SKEY_NANE.TRIGGER, params, evnt) === false) {
+          return false
+        }
+        runEvent(key, listenerMaps, SKEY_NANE.EMIT, params, evnt)
+      }
+    })
   }
 }
 
