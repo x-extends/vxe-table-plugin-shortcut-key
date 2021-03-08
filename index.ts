@@ -1,7 +1,12 @@
-/* eslint-disable no-unused-vars */
 import { ComponentPublicInstance } from 'vue'
 import XEUtils from 'xe-utils/ctor'
-import { VXETableInstance, VxeGlobalInterceptorHandles, VxePagerPrivateMethods, VxePagerConstructor, VxePagerProps } from 'vxe-table/lib/vxe-table'
+import {
+  VXETableCore,
+  VxeGlobalInterceptorHandles,
+  VxePagerPrivateMethods,
+  VxePagerConstructor,
+  VxePagerProps
+} from 'vxe-table/lib/vxe-table'
 
 /**
  * 功能键
@@ -77,7 +82,6 @@ export const enum SKEY_NANE {
   TRIGGER = 'trigger',
   EMIT = 'emit'
 }
-/* eslint-enable no-unused-vars */
 
 export interface ShortcutKeyConf {
   key: string;
@@ -335,7 +339,7 @@ function parseListenerKey (options: ShortcutKeyOptions) {
  * 设置参数
  * @param options 参数
  */
-function setup (options: ShortcutKeyOptions) {
+function pluginSetup (options: ShortcutKeyOptions) {
   if (options) {
     parseDisabledKey(options)
     parseSettingKey(options)
@@ -347,12 +351,14 @@ function setup (options: ShortcutKeyOptions) {
  * 基于 vxe-table 表格的增强插件，为键盘操作提供快捷键设置
  */
 export const VXETablePluginShortcutKey = {
-  setup,
-  install (xtable: VXETableInstance, options?: ShortcutKeyOptions) {
+  setup: pluginSetup,
+  install (vxetablecore: VXETableCore, options?: ShortcutKeyOptions) {
+    const { interceptor } = vxetablecore
+
     if (options) {
-      setup(options)
+      pluginSetup(options)
     }
-    xtable.interceptor.add('event.keydown', (params) => {
+    interceptor.add('event.keydown', (params) => {
       const evnt = params.$event as KeyboardEvent
       const key: string = getEventKey(evnt.key)
       if (!runEvent(key, disabledMaps, SKEY_NANE.EMIT, params, evnt)) {
@@ -363,10 +369,6 @@ export const VXETablePluginShortcutKey = {
       }
     })
   }
-}
-
-if (typeof window !== 'undefined' && window.VXETable) {
-  window.VXETable.use(VXETablePluginShortcutKey)
 }
 
 export default VXETablePluginShortcutKey
