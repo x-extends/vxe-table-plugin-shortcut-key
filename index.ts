@@ -371,4 +371,8 @@ export const VXETablePluginShortcutKey = {
   }
 }
 
+if (typeof window !== 'undefined' && window.VXETable) {
+  window.VXETable.use(VXETablePluginShortcutKey)
+}
+
 export default VXETablePluginShortcutKey
