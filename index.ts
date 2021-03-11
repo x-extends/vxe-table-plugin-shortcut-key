@@ -1,5 +1,4 @@
-/* eslint-disable no-unused-vars */
-import XEUtils from 'xe-utils/ctor'
+import XEUtils from 'xe-utils'
 import { VXETable, InterceptorKeydownParams } from 'vxe-table/lib/vxe-table'
 
 /**
@@ -76,7 +75,6 @@ export const enum SKEY_NANE {
   TRIGGER = 'trigger',
   EMIT = 'emit'
 }
-/* eslint-enable no-unused-vars */
 
 interface KeyStoreMaps {
   [propName: string]: SKey[];
@@ -291,9 +289,9 @@ function parseDisabledKey (options: ShortcutKeyOptions) {
 }
 
 function parseSettingKey (options: ShortcutKeyOptions) {
-  XEUtils.each(options.setting, (opts: string | ShortcutKeySettingConfig, funcName: FUNC_NANE) => {
+  XEUtils.each(options.setting, (opts: string | ShortcutKeySettingConfig, funcName: any) => {
     let kConf: any = XEUtils.isString(opts) ? { key: opts } : opts
-    if (!handleFuncs[funcName]) {
+    if (!handleFuncs[funcName as FUNC_NANE]) {
       console.error(`[vxe-table-plugin-shortcut-key] '${funcName}' not exist.`)
     }
     setKeyQueue(settingMaps, kConf, funcName)
