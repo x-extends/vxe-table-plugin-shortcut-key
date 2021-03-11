@@ -1,5 +1,5 @@
 import { ComponentPublicInstance } from 'vue'
-import XEUtils from 'xe-utils/ctor'
+import XEUtils from 'xe-utils'
 import {
   VXETableCore,
   VxeGlobalInterceptorHandles,
