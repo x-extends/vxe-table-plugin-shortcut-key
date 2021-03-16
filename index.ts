@@ -1,12 +1,6 @@
 import { ComponentPublicInstance } from 'vue'
 import XEUtils from 'xe-utils'
-import {
-  VXETableCore,
-  VxeGlobalInterceptorHandles,
-  VxePagerPrivateMethods,
-  VxePagerConstructor,
-  VxePagerProps
-} from 'vxe-table/lib/vxe-table'
+import { VXETableCore, VxeGlobalInterceptorHandles, VxePagerPrivateMethods, VxePagerConstructor, VxePagerProps } from 'vxe-table'
 
 /**
  * 功能键
