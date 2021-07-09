@@ -1,5 +1,5 @@
 import XEUtils from 'xe-utils'
-import { VXETable, InterceptorKeydownParams } from 'vxe-table/lib/vxe-table'
+import { VXETable, InterceptorKeydownParams } from 'vxe-table'
 
 /**
  * 功能键
