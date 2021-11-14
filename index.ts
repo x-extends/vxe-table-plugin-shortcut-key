@@ -97,6 +97,7 @@ export class SKey {
     this.funcName = funcName
     this.kConf = kConf
   }
+
   [SKEY_NANE.TRIGGER] (params: InterceptorKeydownParams, evnt: any) {
     if (!this.specialKey || evnt[`${this.specialKey}Key`]) {
       if (this.funcName && handleFuncs[this.funcName]) {
@@ -104,6 +105,7 @@ export class SKey {
       }
     }
   }
+
   [SKEY_NANE.EMIT] (params: InterceptorKeydownParams, evnt: any) {
     if (!this.specialKey || evnt[`${this.specialKey}Key`]) {
       if (this.kConf && this.kConf.callback) {
@@ -229,7 +231,7 @@ export const handleFuncs = {
 }
 
 function runEvent (key: string, maps: any, prop: SKEY_NANE, params: InterceptorKeydownParams, evnt: any) {
-  let skeyList: SKey[] = maps[key.toLowerCase()]
+  const skeyList: SKey[] = maps[key.toLowerCase()]
   if (skeyList) {
     return !skeyList.some((skey: SKey) => skey[prop](params, evnt) === false)
   }
@@ -237,7 +239,7 @@ function runEvent (key: string, maps: any, prop: SKEY_NANE, params: InterceptorK
 
 function handleShortcutKeyEvent (params: InterceptorKeydownParams, e: any) {
   const evnt = params.$event || e
-  let key: string = getEventKey(evnt.key)
+  const key: string = getEventKey(evnt.key)
   if (!runEvent(key, disabledMaps, SKEY_NANE.EMIT, params, evnt)) {
     if (runEvent(key, settingMaps, SKEY_NANE.TRIGGER, params, evnt) === false) {
       return false
@@ -254,7 +256,7 @@ interface parseKeyRest {
 function parseKeys (key: string): parseKeyRest {
   let specialKey = ''
   let realKey = ''
-  let keys = key.split('+')
+  const keys = key.split('+')
   keys.forEach((item) => {
     item = item.toLowerCase().trim()
     if (specialKeys.indexOf(item) > -1) {
@@ -270,7 +272,7 @@ function parseKeys (key: string): parseKeyRest {
 }
 
 function setKeyQueue (maps: KeyStoreMaps, kConf: ShortcutKeyConf, funcName?: FUNC_NANE) {
-  let { realKey, specialKey } = parseKeys(kConf.key)
+  const { realKey, specialKey } = parseKeys(kConf.key)
   let skeyList: SKey[] = maps[realKey]
   if (!skeyList) {
     skeyList = maps[realKey] = []
@@ -283,14 +285,14 @@ function setKeyQueue (maps: KeyStoreMaps, kConf: ShortcutKeyConf, funcName?: FUN
 
 function parseDisabledKey (options: ShortcutKeyOptions) {
   XEUtils.each(options.disabled, (conf: string | ShortcutKeyConf) => {
-    let opts: any = XEUtils.isString(conf) ? { key: conf } : conf
+    const opts: any = XEUtils.isString(conf) ? { key: conf } : conf
     setKeyQueue(disabledMaps, XEUtils.assign({ callback: () => false }, opts))
   })
 }
 
 function parseSettingKey (options: ShortcutKeyOptions) {
   XEUtils.each(options.setting, (opts: string | ShortcutKeySettingConfig, funcName: any) => {
-    let kConf: any = XEUtils.isString(opts) ? { key: opts } : opts
+    const kConf: any = XEUtils.isString(opts) ? { key: opts } : opts
     if (!handleFuncs[funcName as FUNC_NANE]) {
       console.error(`[vxe-table-plugin-shortcut-key] '${funcName}' not exist.`)
     }
