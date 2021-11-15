@@ -10,7 +10,7 @@
 ## Installing
 
 ```shell
-npm install xe-utils vxe-table vxe-table-plugin-shortcut-key
+npm install xe-utils vxe-table@3 vxe-table-plugin-shortcut-key@1
 ```
 
 ```javascript
