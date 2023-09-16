@@ -76,15 +76,24 @@ export const enum SKEY_NANE {
   EMIT = 'emit'
 }
 
-interface KeyStoreMaps {
-  [propName: string]: SKey[];
+export interface ShortcutKeyConf {
+  key: string;
+  callback: Function
 }
 
-const arrowKeys = 'right,up,left,down'.split(',')
-const specialKeys = 'alt,ctrl,shift,meta'.split(',')
-const settingMaps: KeyStoreMaps = {}
-const listenerMaps: KeyStoreMaps = {}
-const disabledMaps: KeyStoreMaps = {}
+export interface ShortcutKeyListenerConfig {
+  [funcName: string]: (params: InterceptorKeydownParams, evnt: any) => any;
+}
+
+export interface ShortcutKeySettingConfig {
+  [funcName: string]: string;
+}
+
+export interface ShortcutKeyOptions {
+  disabled?: string[] | ShortcutKeyConf[];
+  listener?: ShortcutKeyListenerConfig;
+  setting?: ShortcutKeySettingConfig;
+}
 
 export class SKey {
   realKey: string;
@@ -114,6 +123,16 @@ export class SKey {
     }
   }
 }
+
+interface KeyStoreMaps {
+  [propName: string]: SKey[];
+}
+
+const arrowKeys = 'right,up,left,down'.split(',')
+const specialKeys = 'alt,ctrl,shift,meta'.split(',')
+const settingMaps: KeyStoreMaps = {}
+const listenerMaps: KeyStoreMaps = {}
+const disabledMaps: KeyStoreMaps = {}
 
 function getEventKey (key: string): string {
   if (arrowKeys.indexOf(key.toLowerCase()) > -1) {
@@ -309,30 +328,11 @@ function parseListenerKey (options: ShortcutKeyOptions) {
   })
 }
 
-export interface ShortcutKeyConf {
-  key: string;
-  callback: Function
-}
-
-export interface ShortcutKeyListenerConfig {
-  [funcName: string]: (params: InterceptorKeydownParams, evnt: any) => any;
-}
-
-export interface ShortcutKeySettingConfig {
-  [funcName: string]: string;
-}
-
-export interface ShortcutKeyOptions {
-  disabled?: string[] | ShortcutKeyConf[];
-  listener?: ShortcutKeyListenerConfig;
-  setting?: ShortcutKeySettingConfig;
-}
-
 /**
  * 设置参数
  * @param options 参数
  */
-function setup (options: ShortcutKeyOptions) {
+function pluginSetup (options: ShortcutKeyOptions) {
   if (options) {
     parseDisabledKey(options)
     parseSettingKey(options)
@@ -344,12 +344,17 @@ function setup (options: ShortcutKeyOptions) {
  * 基于 vxe-table 表格的增强插件，为键盘操作提供快捷键设置
  */
 export const VXETablePluginShortcutKey = {
-  setup,
-  install (xtable: typeof VXETable, options?: ShortcutKeyOptions) {
-    if (options) {
-      setup(options)
+  setup: pluginSetup,
+  install (vxetable: typeof VXETable, options?: ShortcutKeyOptions) {
+    // 检查版本
+    if (!/^(2|3)\./.test(vxetable.version)) {
+      console.error('[vxe-table-plugin-shortcut-key] Version vxe-table 3.x is required')
     }
-    xtable.interceptor.add('event.keydown', handleShortcutKeyEvent)
+
+    if (options) {
+      pluginSetup(options)
+    }
+    vxetable.interceptor.add('event.keydown', handleShortcutKeyEvent)
   }
 }
 

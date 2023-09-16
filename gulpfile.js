@@ -16,7 +16,12 @@ gulp.task('build_commonjs', function () {
     .pipe(sourcemaps.init())
     .pipe(ts(tsconfig.compilerOptions))
     .pipe(babel({
-      presets: ['@babel/env']
+      presets: [
+        '@babel/env'
+      ],
+      plugins: [
+        '@babel/plugin-proposal-class-properties'
+      ]
     }))
     .pipe(rename({
       basename: 'index',
@@ -36,6 +41,7 @@ gulp.task('build_umd', function () {
         '@babel/env'
       ],
       plugins: [
+        '@babel/plugin-proposal-class-properties',
         ['@babel/transform-modules-umd', {
           globals: {
             [pack.name]: exportModuleName,
