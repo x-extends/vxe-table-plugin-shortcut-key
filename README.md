@@ -7,6 +7,10 @@
 
 基于 [vxe-table](https://www.npmjs.com/package/vxe-table) 的表格插件，为键盘操作提供快捷键的设置
 
+## Compatibility
+
+依赖 vxe-table v4 版本  
+
 ## Installing
 
 ```shell

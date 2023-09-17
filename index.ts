@@ -223,7 +223,7 @@ export const handleFuncs = {
     const selected = $table.getSelectedCell()
     if (selected) {
       evnt.preventDefault()
-      $table.setActiveCell(selected.row, selected.column.property)
+      $table.setActiveCell(selected.row, selected.column.field)
       return false
     }
   },
@@ -239,7 +239,7 @@ export const handleFuncs = {
         evnt.preventDefault()
         const cleatRest = $table.clearActived()
         if (mouseConfig && mouseOpts.selected) {
-          cleatRest.then(() => $table.setSelectCell(actived.row, actived.column.property))
+          cleatRest.then(() => $table.setSelectCell(actived.row, actived.column.field))
         }
         return false
       }
@@ -342,17 +342,20 @@ function pluginSetup (options: ShortcutKeyOptions) {
 }
 
 /**
- * 基于 vxe-table 表格的增强插件，为键盘操作提供快捷键设置
+ * 基于 vxe-table 表格的扩展插件，为键盘操作提供快捷键设置
  */
 export const VXETablePluginShortcutKey = {
   setup: pluginSetup,
-  install (vxetablecore: VXETableCore, options?: ShortcutKeyOptions) {
-    const { interceptor } = vxetablecore
+  install (vxetable: VXETableCore, options?: ShortcutKeyOptions) {
+    // 检查版本
+    if (!/^(4)\./.test(vxetable.version)) {
+      console.error('[vxe-table-plugin-shortcut-key] Version vxe-table 4.x is required')
+    }
 
     if (options) {
       pluginSetup(options)
     }
-    interceptor.add('event.keydown', (params) => {
+    vxetable.interceptor.add('event.keydown', (params) => {
       const evnt = params.$event as KeyboardEvent
       const key: string = getEventKey(evnt.key)
       if (!runEvent(key, disabledMaps, SKEY_NANE.EMIT, params, evnt)) {
