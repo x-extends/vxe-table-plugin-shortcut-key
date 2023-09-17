@@ -1,5 +1,5 @@
 import XEUtils from 'xe-utils'
-import { VXETable, InterceptorKeydownParams } from 'vxe-table'
+import { VXETableCore, InterceptorKeydownParams } from 'vxe-table'
 
 /**
  * 功能键
@@ -345,7 +345,7 @@ function pluginSetup (options: ShortcutKeyOptions) {
  */
 export const VXETablePluginShortcutKey = {
   setup: pluginSetup,
-  install (vxetable: typeof VXETable, options?: ShortcutKeyOptions) {
+  install (vxetable: VXETableCore, options?: ShortcutKeyOptions) {
     // 检查版本
     if (!/^(2|3)\./.test(vxetable.version)) {
       console.error('[vxe-table-plugin-shortcut-key] Version vxe-table 3.x is required')
