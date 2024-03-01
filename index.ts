@@ -344,10 +344,10 @@ function pluginSetup (options: ShortcutKeyOptions) {
  * 基于 vxe-table 表格的扩展插件，为键盘操作提供快捷键设置
  */
 export const VXETablePluginShortcutKey = {
-  setup: pluginSetup,
+  config: pluginSetup,
   install (vxetable: VXETableCore, options?: ShortcutKeyOptions) {
     // 检查版本
-    if (!/^(2|3)\./.test(vxetable.version)) {
+    if (!/^(3)\./.test(vxetable.version)) {
       console.error('[vxe-table-plugin-shortcut-key 3.x] Version vxe-table 3.x is required')
     }
 
