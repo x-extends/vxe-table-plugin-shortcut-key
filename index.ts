@@ -348,7 +348,7 @@ export const VXETablePluginShortcutKey = {
   setup: pluginSetup,
   install (vxetable: VXETableCore, options?: ShortcutKeyOptions) {
     // 检查版本
-    if (!/^(4)\./.test(vxetable.version)) {
+    if (!/^(4)\./.test(vxetable.version) && !/v4/i.test((vxetable as any).v)) {
       console.error('[vxe-table-plugin-shortcut-key 4.x] Version vxe-table 4.x is required')
     }
 
