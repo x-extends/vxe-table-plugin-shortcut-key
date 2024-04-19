@@ -9,7 +9,7 @@ const gulpSass = require('gulp-sass')
 const sass = gulpSass(dartSass)
 const cleanCSS = require('gulp-clean-css')
 const prefixer = require('gulp-autoprefixer')
-const sourcemaps = require('gulp-sourcemaps')
+// const sourcemaps = require('gulp-sourcemaps')
 const ts = require('gulp-typescript')
 const pack = require('./package.json')
 const tsconfig = require('./tsconfig.json')
@@ -18,7 +18,7 @@ const exportModuleName = 'VXETablePluginShortcutKey'
 
 gulp.task('build_commonjs', function () {
   return gulp.src(['index.ts'])
-    .pipe(sourcemaps.init())
+    // .pipe(sourcemaps.init())
     .pipe(ts(tsconfig.compilerOptions))
     .pipe(babel({
       presets: ['@babel/env']
@@ -27,7 +27,7 @@ gulp.task('build_commonjs', function () {
       basename: 'index',
       extname: '.common.js'
     }))
-    .pipe(sourcemaps.write())
+    // .pipe(sourcemaps.write())
     .pipe(gulp.dest('dist'))
 })
 
